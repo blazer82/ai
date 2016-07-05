@@ -17,7 +17,7 @@ mlp._add(nn.Tanh())
 mlp._add(nn.Linear(4, 2))
 mlp._add(nn.LogSoftMax())
 
-criterion = nn.ClassNLLCriterion()
+criterion = nn.MSECriterion()
 #trainer = nn.StochasticGradient(mlp, criterion)
 #trainer.learningRate = .2
 
@@ -26,31 +26,38 @@ env.reset()
 
 for i_episode in range(1000):
     observation = env.reset()
-    for t in range(1000):
+    for t in range(200):
         env.render()
         #print(observation)
         #action = env.action_space.sample()
         x = torch.fromNumpyArray(observation)
-        forward = mlp._forward(x)
-        action = np.argmax(forward.asNumpyArray())
+
+        output = mlp._forward(x)
+        action = np.argmax(output.asNumpyArray())
+        
+        
         #print(action)
         observation, reward, done, info = env.step(action)
-        if done or t < 5:
+        
+        if done:
             reward = 0.
-        #print(reward)
-        y = torch.Tensor(1)
-        if reward:
-            y[0] = action
-            rate = .001
+            
+        targets = torch.Tensor(2)._zero()
+            
+        if reward < 1:
+            targets[action] = max(-1., -.1*t)
         else:
-            y[0] = (action + 1) % 2
-            rate = min(.0005 * t, .002)
-        print "action was %f reward was %f, y is %f"%(action, reward, y[0])
-        y[0] += 1
-        criterion._forward(forward, y)
+            targets[action] = min(1., .01*t)
+        
+        print "Action #%d: %d"%(t, action)
+        print(output.asNumpyArray())
+        print(reward)
+        print(targets.asNumpyArray())
+        
+        loss = criterion._forward(output, targets)
         mlp._zeroGradParameters()
-        mlp._backward(x, criterion._backward(mlp.output, y))
-        mlp._updateParameters(rate)
+        mlp._backward(x, criterion._backward(output, targets))
+        mlp._updateParameters(.01)
         if done:
             print("############")
             print("## FAILED ## Episode finished after {} timesteps".format(t+1))
