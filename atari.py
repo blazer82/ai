@@ -43,6 +43,7 @@ if __name__ == "__main__":
 	epsilon = 1. # exploration
 	epsilon_degrade = .0001
 	epsilon_min = .1
+	skip_frames = 4
 
 	model = Sequential()
 	model.add(Convolution2D(32, 8, 8,
@@ -74,34 +75,42 @@ if __name__ == "__main__":
 
 	for i_episode in range(episodes):
 		loss = 0.
+		frame = 0
 		observation = env.reset() # shape (210, 160, 3)
 		input = np.array(observation, dtype=float)
 		game_over = False
+		action = env.action_space.sample()
 
 		while not game_over:
-			observation_tm1 = observation
-			input_tm1 = input
 			env.render()
 
-			if np.random.rand() <= epsilon:
-				action = env.action_space.sample()
+			if frame%skip_frames != 0:
+				env.step(action)
 			else:
-				input = np.array(observation, dtype=float)
-				q = model.predict(input.reshape(1, 210, 160, 3))
-				action = np.argmax(q)
+				observation_tm1 = observation
+				input_tm1 = input
 
-			observation, reward, game_over, info = env.step(action)
+				if np.random.rand() <= epsilon:
+					action = env.action_space.sample()
+				else:
+					input = np.array(observation, dtype=float)
+					q = model.predict(input.reshape(1, 210, 160, 3))
+					action = np.argmax(q)
 
-			if reward == 1:
-				win_count += 1
+				observation, reward, game_over, info = env.step(action)
 
-			exp_replay.remember([input_tm1, action, reward, input], game_over)
+				if reward == 1:
+					win_count += 1
 
-			inputs, targets = exp_replay.get_batch(model, batch_size=20)
+				exp_replay.remember([input_tm1, action, reward, input], game_over)
 
-			loss += model.train_on_batch(inputs, targets)
+				inputs, targets = exp_replay.get_batch(model, batch_size=20)
 
-			if epsilon > epsilon_min:
-				epsilon -= epsilon * epsilon_degrade
+				loss += model.train_on_batch(inputs, targets)
 
-		print "Episode %d, loss %f, win count %d"%(i_episode, loss, win_count)
+				if epsilon > epsilon_min:
+					epsilon -= epsilon * epsilon_degrade
+
+			frame += 1
+
+		print "Episode %d, loss %f, win average %f"%(i_episode, loss, win_count / (i_episode + 1))
