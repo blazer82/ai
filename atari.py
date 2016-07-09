@@ -44,7 +44,7 @@ def make_grey(x):
 if __name__ == "__main__":
 	episodes = 1000
 	epsilon = 1. # exploration
-	epsilon_degrade = .0001
+	epsilon_degrade = .000001
 	epsilon_min = .1
 	skip_frames = 4
 
@@ -66,8 +66,8 @@ if __name__ == "__main__":
 		border_mode='same',
 		activation='relu'))
 	model.add(Flatten())
-	model.add(Dense(128))
-	model.add(Dense(6, activation='softmax'))
+	model.add(Dense(512))
+	model.add(Dense(6))
 	model.compile(sgd(lr=.2), "mse")
 
 	exp_replay = ExperienceReplay(max_memory=500)
@@ -109,7 +109,7 @@ if __name__ == "__main__":
 
 				exp_replay.remember([input_tm1, action, reward, input], game_over)
 
-				inputs, targets = exp_replay.get_batch(model, batch_size=20)
+				inputs, targets = exp_replay.get_batch(model, batch_size=50)
 
 				loss += model.train_on_batch(inputs, targets)
 
