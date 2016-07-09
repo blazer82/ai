@@ -90,16 +90,16 @@ if __name__ == "__main__":
 			input_tm1 = input
 
 			if frame > 3:
-				frame_iteration = 3
+				frame_index = 3
 				input[0] = input[1]
 				input[1] = input[2]
 				input[2] = input[3]
 			else:
-				frame_iteration = frame%skip_frames
+				frame_index = frame%skip_frames
 
-			if frame_iteration != 3:
+			if frame%skip_frames != 3:
 				observation, reward, game_over, info = env.step(action)
-				input[frame_iteration] = make_grey(observation)
+				input[frame_index] = make_grey(observation)
 				win_count += reward
 			else:
 				if np.random.rand() <= epsilon:
@@ -109,7 +109,7 @@ if __name__ == "__main__":
 					action = np.argmax(q)
 
 				observation, reward, game_over, info = env.step(action)
-				input[frame_iteration] = make_grey(observation)
+				input[frame_index] = make_grey(observation)
 				win_count += reward
 
 				exp_replay.remember([input_tm1, action, reward, input], game_over)
