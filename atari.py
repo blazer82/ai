@@ -20,7 +20,7 @@ class ExperienceReplay(object):
 	def get_batch(self, model, batch_size):
 		len_memory = len(self.memory)
 		num_actions = 6
-		inputs = np.zeros((min(len_memory, batch_size), 210, 160, 3))
+		inputs = np.zeros((min(len_memory, batch_size), 210, 160, 1))
 		targets = np.zeros((inputs.shape[0], num_actions))
 		for i, idx in enumerate(np.random.randint(0, len_memory, size=inputs.shape[0])):
 			input_t, action_t, reward_t, input_tp1 = self.memory[idx][0]
@@ -28,8 +28,8 @@ class ExperienceReplay(object):
 
 			inputs[i:i+1] = input_t
 
-			targets[i] = model.predict(input_t.reshape(1, 210, 160, 3))[0]
-			q_next = np.max(model.predict(input_tp1.reshape(1, 210, 160, 3))[0])
+			targets[i] = model.predict(input_t.reshape(1, 210, 160, 1))[0]
+			q_next = np.max(model.predict(input_tp1.reshape(1, 210, 160, 1))[0])
 
 			if game_over:
 				targets[i, action_t] = reward_t
@@ -37,6 +37,9 @@ class ExperienceReplay(object):
 				targets[i, action_t] = reward_t + self.discount * q_next
 
 		return inputs, targets
+
+def make_grey(x):
+	return np.average(x, 2).reshape(210, 160, 1)
 
 if __name__ == "__main__":
 	episodes = 1000
@@ -50,7 +53,7 @@ if __name__ == "__main__":
 		subsample=(4, 4),
 		dim_ordering='tf',
 		border_mode='same',
-		input_shape=(210, 160, 3),
+		input_shape=(210, 160, 1),
 		activation='relu'))
 	model.add(Convolution2D(64, 4, 4,
 		subsample=(2, 2),
@@ -76,7 +79,8 @@ if __name__ == "__main__":
 	for i_episode in range(episodes):
 		loss = 0.
 		frame = 0
-		input = env.reset() # shape (210, 160, 3)
+		observation = env.reset() # shape (210, 160, 3)
+		input = make_grey(observation)
 		game_over = False
 		action = env.action_space.sample()
 
@@ -84,7 +88,8 @@ if __name__ == "__main__":
 			env.render()
 
 			if frame%skip_frames != 0:
-				input, reward, game_over, info = env.step(action)
+				observation, reward, game_over, info = env.step(action)
+				input = make_grey(observation)
 				win_count += reward
 			else:
 				input_tm1 = input
@@ -92,10 +97,11 @@ if __name__ == "__main__":
 				if np.random.rand() <= epsilon:
 					action = env.action_space.sample()
 				else:
-					q = model.predict(input.reshape(1, 210, 160, 3))
+					q = model.predict(input.reshape(1, 210, 160, 1))
 					action = np.argmax(q)
 
-				input, reward, game_over, info = env.step(action)
+				observation, reward, game_over, info = env.step(action)
+				input = make_grey(observation)
 				win_count += reward
 
 				exp_replay.remember([input_tm1, action, reward, input], game_over)
