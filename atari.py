@@ -76,8 +76,7 @@ if __name__ == "__main__":
 	for i_episode in range(episodes):
 		loss = 0.
 		frame = 0
-		observation = env.reset() # shape (210, 160, 3)
-		input = np.array(observation, dtype=float)
+		input = env.reset() # shape (210, 160, 3)
 		game_over = False
 		action = env.action_space.sample()
 
@@ -85,22 +84,19 @@ if __name__ == "__main__":
 			env.render()
 
 			if frame%skip_frames != 0:
-				env.step(action)
+				input, reward, game_over, info = env.step(action)
+				win_count += reward
 			else:
-				observation_tm1 = observation
 				input_tm1 = input
 
 				if np.random.rand() <= epsilon:
 					action = env.action_space.sample()
 				else:
-					input = np.array(observation, dtype=float)
 					q = model.predict(input.reshape(1, 210, 160, 3))
 					action = np.argmax(q)
 
-				observation, reward, game_over, info = env.step(action)
-
-				if reward == 1:
-					win_count += 1
+				input, reward, game_over, info = env.step(action)
+				win_count += reward
 
 				exp_replay.remember([input_tm1, action, reward, input], game_over)
 
@@ -113,4 +109,4 @@ if __name__ == "__main__":
 
 			frame += 1
 
-		print "Episode %d, loss %f, win average %f"%(i_episode, loss, win_count / (i_episode + 1))
+		print "Episode %d, loss %f, win average %f"%(i_episode, loss, win_count / (i_episode + 1.))
