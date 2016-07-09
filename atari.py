@@ -44,7 +44,7 @@ def make_grey(x):
 if __name__ == "__main__":
 	episodes = 1000
 	epsilon = 1. # exploration
-	epsilon_degrade = .000001
+	epsilon_degrade = .0001
 	epsilon_min = .1
 	skip_frames = 4
 
@@ -75,6 +75,7 @@ if __name__ == "__main__":
 	env = gym.make('Breakout-v0')
 
 	win_count = 0
+	total_frames = 0
 
 	for i_episode in range(episodes):
 		loss = 0.
@@ -123,4 +124,6 @@ if __name__ == "__main__":
 
 			frame += 1
 
+		total_frames += frame
 		print "Episode %d, loss %f, win average %f"%(i_episode, loss, win_count / (i_episode + 1.))
+		print "Frames %d, epsilon %f"%(total_frames, epsilon)
