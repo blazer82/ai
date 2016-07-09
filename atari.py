@@ -1,7 +1,8 @@
 import gym
 import numpy as np
 from keras.models import Sequential
-from keras.layers.core import Dense
+from keras.layers.core import Dense, Flatten
+from keras.layers.convolutional import Convolution2D
 from keras.optimizers import sgd
 
 
@@ -19,8 +20,7 @@ class ExperienceReplay(object):
 	def get_batch(self, model, batch_size):
 		len_memory = len(self.memory)
 		num_actions = 6
-		env_dim = 100800 #self.memory[0][0][0].shape[1]
-		inputs = np.zeros((min(len_memory, batch_size), env_dim))
+		inputs = np.zeros((min(len_memory, batch_size), 210, 160, 3))
 		targets = np.zeros((inputs.shape[0], num_actions))
 		for i, idx in enumerate(np.random.randint(0, len_memory, size=inputs.shape[0])):
 			input_t, action_t, reward_t, input_tp1 = self.memory[idx][0]
@@ -28,8 +28,8 @@ class ExperienceReplay(object):
 
 			inputs[i:i+1] = input_t
 
-			targets[i] = model.predict(input_t)[0]
-			q_next = np.max(model.predict(input_tp1)[0])
+			targets[i] = model.predict(input_t.reshape(1, 210, 160, 3))[0]
+			q_next = np.max(model.predict(input_tp1.reshape(1, 210, 160, 3))[0])
 
 			if game_over:
 				targets[i, action_t] = reward_t
@@ -42,12 +42,28 @@ if __name__ == "__main__":
 	episodes = 1000
 	epsilon = 1. # exploration
 	epsilon_degrade = .0001
-	epsilon_min = .2
+	epsilon_min = .1
 
 	model = Sequential()
-	model.add(Dense(100, input_shape=(100800,), activation='relu'))
-	model.add(Dense(100, activation='relu'))
-	model.add(Dense(6))
+	model.add(Convolution2D(32, 8, 8,
+		subsample=(4, 4),
+		dim_ordering='tf',
+		border_mode='same',
+		input_shape=(210, 160, 3),
+		activation='relu'))
+	model.add(Convolution2D(64, 4, 4,
+		subsample=(2, 2),
+		dim_ordering='tf',
+		border_mode='same',
+		activation='relu'))
+	model.add(Convolution2D(64, 3, 3,
+		subsample=(1, 1),
+		dim_ordering='tf',
+		border_mode='same',
+		activation='relu'))
+	model.add(Flatten())
+	model.add(Dense(128))
+	model.add(Dense(6, activation='softmax'))
 	model.compile(sgd(lr=.2), "mse")
 
 	exp_replay = ExperienceReplay(max_memory=500)
@@ -59,7 +75,7 @@ if __name__ == "__main__":
 	for i_episode in range(episodes):
 		loss = 0.
 		observation = env.reset() # shape (210, 160, 3)
-		input = np.array(observation, dtype=float).flatten().reshape((1, -1))
+		input = np.array(observation, dtype=float)
 		game_over = False
 
 		while not game_over:
@@ -70,8 +86,8 @@ if __name__ == "__main__":
 			if np.random.rand() <= epsilon:
 				action = env.action_space.sample()
 			else:
-				input = np.array(observation, dtype=float).flatten().reshape((1, -1))
-				q = model.predict(input)
+				input = np.array(observation, dtype=float)
+				q = model.predict(input.reshape(1, 210, 160, 3))
 				action = np.argmax(q)
 
 			observation, reward, game_over, info = env.step(action)
