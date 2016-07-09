@@ -118,8 +118,8 @@ if __name__ == "__main__":
 
 				loss += model.train_on_batch(inputs, targets)
 
-				if epsilon > epsilon_min:
-					epsilon -= epsilon * epsilon_degrade
+			if epsilon > epsilon_min:
+				epsilon -= epsilon * epsilon_degrade
 
 			frame += 1
 
