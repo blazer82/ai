@@ -82,21 +82,26 @@ if __name__ == "__main__":
 		game_over = False
 		input = np.zeros((4, 210, 160))
 		observation = env.reset() # shape (210, 160, 3)
-		input[frame] = make_grey(observation)
 		action = env.action_space.sample()
 
 		while not game_over:
 			env.render()
 
-			frame_iteration = frame%skip_frames
+			input_tm1 = input
+
+			if frame > 3:
+				frame_iteration = 3
+				input[0] = input[1]
+				input[1] = input[2]
+				input[2] = input[3]
+			else:
+				frame_iteration = frame%skip_frames
 
 			if frame_iteration != 3:
 				observation, reward, game_over, info = env.step(action)
 				input[frame_iteration] = make_grey(observation)
 				win_count += reward
 			else:
-				input_tm1 = input
-
 				if np.random.rand() <= epsilon:
 					action = env.action_space.sample()
 				else:
