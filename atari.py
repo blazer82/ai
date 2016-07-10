@@ -42,9 +42,9 @@ def make_grey(x):
 	return np.average(x, 2)
 
 if __name__ == "__main__":
-	episodes = 1000
+	episodes = 100000
 	epsilon = 1. # exploration
-	epsilon_degrade = .0001
+	epsilon_degrade = .000001
 	epsilon_min = .1
 	skip_frames = 4
 
@@ -74,12 +74,13 @@ if __name__ == "__main__":
 
 	env = gym.make('Breakout-v0')
 
-	win_count = 0
+	total_score = 0
 	total_frames = 0
 
 	for i_episode in range(episodes):
 		loss = 0.
 		frame = 0
+		score = 0
 		game_over = False
 		input = np.zeros((4, 210, 160))
 		observation = env.reset() # shape (210, 160, 3)
@@ -101,7 +102,7 @@ if __name__ == "__main__":
 			if frame%skip_frames != 3:
 				observation, reward, game_over, info = env.step(action)
 				input[frame_index] = make_grey(observation)
-				win_count += reward
+				score += reward
 			else:
 				if np.random.rand() <= epsilon:
 					action = env.action_space.sample()
@@ -111,19 +112,21 @@ if __name__ == "__main__":
 
 				observation, reward, game_over, info = env.step(action)
 				input[frame_index] = make_grey(observation)
-				win_count += reward
+				score += reward
 
 				exp_replay.remember([input_tm1, action, reward, input], game_over)
 
-				inputs, targets = exp_replay.get_batch(model, batch_size=50)
+				inputs, targets = exp_replay.get_batch(model, batch_size=20)
 
 				loss += model.train_on_batch(inputs, targets)
 
 			if epsilon > epsilon_min:
 				epsilon -= epsilon * epsilon_degrade
+				epsilon = max(epsilon, epsilon_min)
 
 			frame += 1
 
 		total_frames += frame
-		print "Episode %d, loss %f, win average %f"%(i_episode, loss, win_count / (i_episode + 1.))
+		total_score += score
+		print "Episode %d, loss %f, score %d"%(i_episode, loss, score)
 		print "Frames %d, epsilon %f"%(total_frames, epsilon)
