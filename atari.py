@@ -116,7 +116,7 @@ if __name__ == "__main__":
 
 				exp_replay.remember([input_tm1, action, reward, input], game_over)
 
-				inputs, targets = exp_replay.get_batch(model, batch_size=20)
+				inputs, targets = exp_replay.get_batch(model, batch_size=32)
 
 				loss += model.train_on_batch(inputs, targets)
 
