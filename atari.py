@@ -133,4 +133,4 @@ if __name__ == "__main__":
 
 		if i_episode > 0 and i_episode%50 == 0:
 			print "Saving weights to disk..."
-			model.save_weights('atari_weights.h5')
+			model.save_weights('atari_weights.h5', overwrite=True)
