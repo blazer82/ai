@@ -29,13 +29,13 @@ class ExperienceReplay(object):
 
 			inputs[i:i+1] = input_t
 
-			#targets[i] = model.predict(input_t.reshape(1, 4, 110, 84))[0]
+			targets[i] = model.predict(input_t.reshape(1, 4, 110, 84))[0]
 			q_next = np.max(model.predict(input_tp1.reshape(1, 4, 110, 84))[0])
 
 			if game_over:
 				targets[i, action_t] = reward_t
 			else:
-				targets[i, action_t] = reward_t * self.discount * q_next
+				targets[i, action_t] = reward_t + self.discount * q_next
 
 		return inputs, targets
 
@@ -49,31 +49,34 @@ def preprocess(x):
 if __name__ == "__main__":
 	episodes = 100000
 	epsilon = 1. # exploration
-	epsilon_degrade = .00001
+	epsilon_degrade = .000001
 	epsilon_min = .1
 	skip_frames = 4
 
 	model = Sequential()
 	model.add(Convolution2D(32, 8, 8,
+		init='uniform',
 		subsample=(4, 4),
 		dim_ordering='th',
 		border_mode='same',
 		input_shape=(4, 110, 84),
 		activation='relu'))
 	model.add(Convolution2D(64, 4, 4,
+		init='uniform',
 		subsample=(2, 2),
 		dim_ordering='th',
 		border_mode='same',
 		activation='relu'))
 	model.add(Convolution2D(64, 3, 3,
+		init='uniform',
 		subsample=(1, 1),
 		dim_ordering='th',
 		border_mode='same',
 		activation='relu'))
 	model.add(Flatten())
-	model.add(Dense(512))
-	model.add(Dense(6, activation='softmax'))
-	model.compile(sgd(lr=.0001), "mse")
+	model.add(Dense(512, init='uniform'))
+	model.add(Dense(6, init='uniform', activation='softmax'))
+	model.compile(sgd(lr=.00001), "mse")
 
 	exp_replay = ExperienceReplay(max_memory=500)
 
