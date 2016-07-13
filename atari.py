@@ -4,6 +4,7 @@ from keras.models import Sequential
 from keras.layers.core import Dense, Flatten
 from keras.layers.convolutional import Convolution2D
 from keras.optimizers import sgd
+from PIL import Image
 
 
 class ExperienceReplay(object):
@@ -20,7 +21,7 @@ class ExperienceReplay(object):
 	def get_batch(self, model, batch_size):
 		len_memory = len(self.memory)
 		num_actions = 6
-		inputs = np.zeros((min(len_memory, batch_size), 4, 210, 160))
+		inputs = np.zeros((min(len_memory, batch_size), 4, 110, 84))
 		targets = np.zeros((inputs.shape[0], num_actions))
 		for i, idx in enumerate(np.random.randint(0, len_memory, size=inputs.shape[0])):
 			input_t, action_t, reward_t, input_tp1 = self.memory[idx][0]
@@ -28,8 +29,8 @@ class ExperienceReplay(object):
 
 			inputs[i:i+1] = input_t
 
-			targets[i] = model.predict(input_t.reshape(1, 4, 210, 160))[0]
-			q_next = np.max(model.predict(input_tp1.reshape(1, 4, 210, 160))[0])
+			targets[i] = model.predict(input_t.reshape(1, 4, 110, 84))[0]
+			q_next = np.max(model.predict(input_tp1.reshape(1, 4, 110, 84))[0])
 
 			if game_over:
 				targets[i, action_t] = reward_t
@@ -38,8 +39,12 @@ class ExperienceReplay(object):
 
 		return inputs, targets
 
-def make_grey(x):
-	return np.average(x, 2)
+def preprocess(x):
+	grey = np.average(x, 2)
+	img = Image.fromarray(grey)
+	img.thumbnail((110, 110), Image.NEAREST)
+	x_new = np.asarray(img, dtype=np.float32) # new shape (110, 84)
+	return x_new
 
 if __name__ == "__main__":
 	episodes = 100000
@@ -53,7 +58,7 @@ if __name__ == "__main__":
 		subsample=(4, 4),
 		dim_ordering='th',
 		border_mode='same',
-		input_shape=(4, 210, 160),
+		input_shape=(4, 110, 84),
 		activation='relu'))
 	model.add(Convolution2D(64, 4, 4,
 		subsample=(2, 2),
@@ -82,7 +87,7 @@ if __name__ == "__main__":
 		frame = 0
 		score = 0
 		game_over = False
-		input = np.zeros((4, 210, 160))
+		input = np.zeros((4, 110, 84))
 		observation = env.reset() # shape (210, 160, 3)
 		action = env.action_space.sample()
 
@@ -100,17 +105,17 @@ if __name__ == "__main__":
 
 			if frame%skip_frames != 3:
 				observation, reward, game_over, info = env.step(action)
-				input[frame_index] = make_grey(observation)
+				input[frame_index] = preprocess(observation)
 				score += reward
 			else:
 				if np.random.rand() <= epsilon:
 					action = env.action_space.sample()
 				else:
-					q = model.predict(input.reshape(1, 4, 210, 160))
+					q = model.predict(input.reshape(1, 4, 110, 84))
 					action = np.argmax(q)
 
 				observation, reward, game_over, info = env.step(action)
-				input[frame_index] = make_grey(observation)
+				input[frame_index] = preprocess(observation)
 				score += reward
 
 				exp_replay.remember([input_tm1, action, reward, input], game_over)
