@@ -29,13 +29,13 @@ class ExperienceReplay(object):
 
 			inputs[i:i+1] = input_t
 
-			targets[i] = model.predict(input_t.reshape(1, 4, 110, 84))[0]
+			#targets[i] = model.predict(input_t.reshape(1, 4, 110, 84))[0]
 			q_next = np.max(model.predict(input_tp1.reshape(1, 4, 110, 84))[0])
 
 			if game_over:
 				targets[i, action_t] = reward_t
 			else:
-				targets[i, action_t] = reward_t + self.discount * q_next
+				targets[i, action_t] = reward_t * self.discount * q_next
 
 		return inputs, targets
 
@@ -49,7 +49,7 @@ def preprocess(x):
 if __name__ == "__main__":
 	episodes = 100000
 	epsilon = 1. # exploration
-	epsilon_degrade = .000001
+	epsilon_degrade = .00001
 	epsilon_min = .1
 	skip_frames = 4
 
