@@ -68,7 +68,7 @@ if __name__ == "__main__":
 	model.add(Flatten())
 	model.add(Dense(512))
 	model.add(Dense(6, activation='softmax'))
-	model.compile(sgd(lr=.2), "mse")
+	model.compile(sgd(lr=.0001), "mse")
 
 	exp_replay = ExperienceReplay(max_memory=500)
 
