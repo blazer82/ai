@@ -93,9 +93,8 @@ if __name__ == "__main__":
 
 			if frame > 3:
 				frame_index = 3
-				input[0] = input[1]
-				input[1] = input[2]
-				input[2] = input[3]
+				input[0:2] = input[1:3]
+				input[3] = np.zeros(input[3].shape)
 			else:
 				frame_index = frame%skip_frames
 
