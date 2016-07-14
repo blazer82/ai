@@ -1,8 +1,9 @@
 import gym
 import numpy as np
 from keras.models import Sequential
-from keras.layers.core import Dense, Flatten
+from keras.layers.core import Dense, Flatten, Activation
 from keras.layers.convolutional import Convolution2D
+from keras.layers.normalization import BatchNormalization
 from keras.optimizers import sgd
 from PIL import Image
 
@@ -59,24 +60,27 @@ if __name__ == "__main__":
 		subsample=(4, 4),
 		dim_ordering='th',
 		border_mode='same',
-		input_shape=(4, 110, 84),
-		activation='relu'))
+		input_shape=(4, 110, 84)))
+	model.add(BatchNormalization())
+	model.add(Activation('relu'))
 	model.add(Convolution2D(64, 4, 4,
 		init='uniform',
 		subsample=(2, 2),
 		dim_ordering='th',
-		border_mode='same',
-		activation='relu'))
+		border_mode='same'))
+	model.add(Activation('relu'))
 	model.add(Convolution2D(64, 3, 3,
 		init='uniform',
 		subsample=(1, 1),
 		dim_ordering='th',
-		border_mode='same',
-		activation='relu'))
+		border_mode='same'))
+	model.add(Activation('relu'))
 	model.add(Flatten())
 	model.add(Dense(512, init='uniform'))
-	model.add(Dense(6, init='uniform', activation='softmax'))
-	model.compile(sgd(lr=.00001), "mse")
+	model.add(Activation('relu'))
+	model.add(Dense(6, init='uniform'))
+	model.add(Activation('softmax'))
+	model.compile(sgd(lr=.01), "mse")
 
 	exp_replay = ExperienceReplay(max_memory=500)
 
