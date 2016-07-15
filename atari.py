@@ -1,5 +1,6 @@
 import gym
 import numpy as np
+from scipy import misc
 from keras.models import Sequential
 from keras.layers.core import Dense, Flatten, Activation
 from keras.layers.convolutional import Convolution2D
@@ -22,16 +23,16 @@ class ExperienceReplay(object):
 	def get_batch(self, model, batch_size):
 		len_memory = len(self.memory)
 		num_actions = 6
-		inputs = np.zeros((min(len_memory, batch_size), 4, 110, 84))
+		inputs = np.zeros((min(len_memory, batch_size), 4, 80, 74))
 		targets = np.zeros((inputs.shape[0], num_actions))
 		for i, idx in enumerate(np.random.randint(0, len_memory, size=inputs.shape[0])):
 			input_t, action_t, reward_t, input_tp1 = self.memory[idx][0]
 			game_over = self.memory[idx][1]
 
-			inputs[i:i+1] = input_t
+			inputs[i] = input_t
 
-			targets[i] = model.predict(input_t.reshape(1, 4, 110, 84))[0]
-			q_next = np.max(model.predict(input_tp1.reshape(1, 4, 110, 84))[0])
+			targets[i] = model.predict(input_t.reshape(1, 4, 80, 74))[0]
+			q_next = np.max(model.predict(input_tp1.reshape(1, 4, 80, 74))[0])
 
 			if game_over:
 				targets[i, action_t] = reward_t
@@ -43,14 +44,15 @@ class ExperienceReplay(object):
 def preprocess(x):
 	grey = np.average(x, 2)
 	img = Image.fromarray(grey)
-	img.thumbnail((110, 110), Image.NEAREST)
-	x_new = np.asarray(img, dtype=np.float32) # new shape (110, 84)
+	img.thumbnail((110, 110), Image.NEAREST) # new shape (110, 84)
+	img = img.crop((5, 25, 79, 105)) # new shape (80, 74)
+	x_new = np.asarray(img, dtype=np.float32)
 	return x_new
 
 if __name__ == "__main__":
 	episodes = 100000
 	epsilon = 1. # exploration
-	epsilon_degrade = .000001
+	epsilon_degrade = .0001
 	epsilon_min = .1
 	skip_frames = 4
 
@@ -60,29 +62,35 @@ if __name__ == "__main__":
 		subsample=(4, 4),
 		dim_ordering='th',
 		border_mode='same',
-		input_shape=(4, 110, 84)))
+		input_shape=(4, 80, 74)))
 	model.add(BatchNormalization())
 	model.add(Activation('relu'))
+
 	model.add(Convolution2D(64, 4, 4,
 		init='uniform',
 		subsample=(2, 2),
 		dim_ordering='th',
 		border_mode='same'))
 	model.add(Activation('relu'))
+
 	model.add(Convolution2D(64, 3, 3,
 		init='uniform',
 		subsample=(1, 1),
 		dim_ordering='th',
 		border_mode='same'))
 	model.add(Activation('relu'))
+
 	model.add(Flatten())
+
 	model.add(Dense(512, init='uniform'))
 	model.add(Activation('relu'))
+
 	model.add(Dense(6, init='uniform'))
 	model.add(Activation('softmax'))
-	model.compile(sgd(lr=.01), "mse")
 
-	exp_replay = ExperienceReplay(max_memory=500)
+	model.compile(sgd(lr=.1), "mse")
+
+	exp_replay = ExperienceReplay(max_memory=5000)
 
 	env = gym.make('Breakout-v0')
 
@@ -92,9 +100,10 @@ if __name__ == "__main__":
 	for i_episode in range(episodes):
 		loss = 0.
 		frame = 0
+		frame_index = 0
 		score = 0
 		game_over = False
-		input = np.zeros((4, 110, 84))
+		input = np.zeros((4, 80, 74))
 		observation = env.reset() # shape (210, 160, 3)
 		action = env.action_space.sample()
 
@@ -103,22 +112,19 @@ if __name__ == "__main__":
 
 			input_tm1 = input
 
-			if frame > 3:
-				frame_index = 3
-				input[0:2] = input[1:3]
-				input[3] = np.zeros(input[3].shape)
-			else:
-				frame_index = frame%skip_frames
-
 			if frame%skip_frames != 3:
 				observation, reward, game_over, info = env.step(action)
-				input[frame_index] = preprocess(observation)
 				score += reward
 			else:
+				if frame_index == 4:
+					frame_index = 3
+					input[0:2] = input[1:3]
+					input[3] = np.zeros(input[3].shape)
+
 				if np.random.rand() <= epsilon:
 					action = env.action_space.sample()
 				else:
-					q = model.predict(input.reshape(1, 4, 110, 84))
+					q = model.predict(input.reshape(1, 4, 80, 74))
 					action = np.argmax(q)
 
 				observation, reward, game_over, info = env.step(action)
@@ -130,6 +136,8 @@ if __name__ == "__main__":
 				inputs, targets = exp_replay.get_batch(model, batch_size=32)
 
 				loss += model.train_on_batch(inputs, targets)
+
+				frame_index += 1
 
 			if epsilon > epsilon_min:
 				epsilon -= epsilon * epsilon_degrade
