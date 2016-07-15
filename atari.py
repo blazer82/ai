@@ -60,7 +60,7 @@ if __name__ == "__main__":
 	skip_frames = 4
 
 	model = Sequential()
-	model.add(Convolution2D(32, 8, 8,
+	model.add(Convolution2D(16, 8, 8,
 		init='uniform',
 		subsample=(4, 4),
 		dim_ordering='th',
@@ -69,23 +69,23 @@ if __name__ == "__main__":
 	model.add(BatchNormalization())
 	model.add(Activation('relu'))
 
-	model.add(Convolution2D(64, 4, 4,
+	model.add(Convolution2D(32, 4, 4,
 		init='uniform',
 		subsample=(2, 2),
 		dim_ordering='th',
 		border_mode='same'))
 	model.add(Activation('relu'))
 
-	model.add(Convolution2D(64, 3, 3,
+	"""model.add(Convolution2D(64, 3, 3,
 		init='uniform',
 		subsample=(1, 1),
 		dim_ordering='th',
 		border_mode='same'))
-	model.add(Activation('relu'))
+	model.add(Activation('relu'))"""
 
 	model.add(Flatten())
 
-	model.add(Dense(512, init='uniform'))
+	model.add(Dense(256, init='uniform'))
 	model.add(Activation('relu'))
 
 	model.add(Dense(6, init='uniform'))
@@ -93,7 +93,7 @@ if __name__ == "__main__":
 
 	model.compile(sgd(lr=.1), "mse")
 
-	exp_replay = ExperienceReplay(max_memory=5000)
+	exp_replay = ExperienceReplay(max_memory=100000)
 
 	env = gym.make('Breakout-v0')
 
