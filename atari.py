@@ -127,7 +127,7 @@ if __name__ == "__main__":
 				if np.random.rand() <= epsilon:
 					action = np.random.randint(0, 6)
 				else:
-					q = model.predict(input.reshape(1, 4, 80, 74))
+					q = model.predict(input.reshape(1, 4, 80, 74))[0]
 					action = np.argmax(q)
 
 				observation, reward, game_over, info = env.step(action)
