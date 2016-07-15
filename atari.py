@@ -135,6 +135,9 @@ if __name__ == "__main__":
 				input[frame_index] = preprocess(observation)
 				score += reward
 
+				if game_over:
+					reward = -1
+
 				exp_replay.remember([input_tm1, action, reward, input], game_over)
 
 				inputs, targets, encouraged = exp_replay.get_batch(model, batch_size=32)
