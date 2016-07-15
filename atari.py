@@ -125,7 +125,7 @@ if __name__ == "__main__":
 				score += reward
 			else:
 				if np.random.rand() <= epsilon:
-					action = env.action_space.sample()
+					action = np.random.randint(0, 6)
 				else:
 					q = model.predict(input.reshape(1, 4, 80, 74))
 					action = np.argmax(q)
