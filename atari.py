@@ -23,6 +23,7 @@ class ExperienceReplay(object):
 	def get_batch(self, model, batch_size):
 		len_memory = len(self.memory)
 		num_actions = 6
+		encouraged_actions = np.zeros(num_actions, dtype=np.int)
 		inputs = np.zeros((min(len_memory, batch_size), 4, 80, 74))
 		targets = np.zeros((inputs.shape[0], num_actions))
 		for i, idx in enumerate(np.random.randint(0, len_memory, size=inputs.shape[0])):
@@ -39,7 +40,9 @@ class ExperienceReplay(object):
 			else:
 				targets[i, action_t] = reward_t + self.discount * q_next
 
-		return inputs, targets
+			encouraged_actions[np.argmax(targets[i])] += 1
+
+		return inputs, targets, encouraged_actions
 
 def preprocess(x):
 	grey = np.average(x, 2)
@@ -52,7 +55,7 @@ def preprocess(x):
 if __name__ == "__main__":
 	episodes = 100000
 	epsilon = 1. # exploration
-	epsilon_degrade = .0001
+	epsilon_degrade = .00001
 	epsilon_min = .1
 	skip_frames = 4
 
@@ -106,6 +109,7 @@ if __name__ == "__main__":
 		input = np.zeros((4, 80, 74))
 		observation = env.reset() # shape (210, 160, 3)
 		action = env.action_space.sample()
+		encouraged_actions = np.zeros(6, dtype=np.int)
 
 		while not game_over:
 			env.render()
@@ -133,7 +137,9 @@ if __name__ == "__main__":
 
 				exp_replay.remember([input_tm1, action, reward, input], game_over)
 
-				inputs, targets = exp_replay.get_batch(model, batch_size=32)
+				inputs, targets, encouraged = exp_replay.get_batch(model, batch_size=32)
+
+				encouraged_actions += encouraged
 
 				loss += model.train_on_batch(inputs, targets)
 
@@ -148,6 +154,7 @@ if __name__ == "__main__":
 		total_frames += frame
 		total_score += score
 		print "Episode %d, loss %f, score %d"%(i_episode, loss, score)
+		print "Encouraged actions 1:%d 2:%d 3:%d 4:%d 5:%d 6:%d"%(encouraged_actions[0], encouraged_actions[1], encouraged_actions[2], encouraged_actions[3], encouraged_actions[4], encouraged_actions[5])
 		print "Frames %d, epsilon %f"%(total_frames, epsilon)
 
 		if i_episode > 0 and i_episode%50 == 0:
