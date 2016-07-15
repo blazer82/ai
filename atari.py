@@ -24,6 +24,7 @@ class ExperienceReplay(object):
 		len_memory = len(self.memory)
 		num_actions = 6
 		encouraged_actions = np.zeros(num_actions, dtype=np.int)
+		predicted_actions = np.zeros(num_actions, dtype=np.int)
 		inputs = np.zeros((min(len_memory, batch_size), 4, 80, 74))
 		targets = np.zeros((inputs.shape[0], num_actions))
 		for i, idx in enumerate(np.random.randint(0, len_memory, size=inputs.shape[0])):
@@ -35,6 +36,8 @@ class ExperienceReplay(object):
 			targets[i] = model.predict(input_t.reshape(1, 4, 80, 74))[0]
 			q_next = np.max(model.predict(input_tp1.reshape(1, 4, 80, 74))[0])
 
+			predicted_actions[np.argmax(targets[i])] += 1
+
 			if game_over:
 				targets[i, action_t] = reward_t
 			else:
@@ -42,7 +45,7 @@ class ExperienceReplay(object):
 
 			encouraged_actions[np.argmax(targets[i])] += 1
 
-		return inputs, targets, encouraged_actions
+		return inputs, targets, encouraged_actions, predicted_actions
 
 def preprocess(x):
 	grey = np.average(x, 2)
@@ -55,7 +58,7 @@ def preprocess(x):
 if __name__ == "__main__":
 	episodes = 100000
 	epsilon = 1. # exploration
-	epsilon_degrade = .00001
+	epsilon_degrade = .000001
 	epsilon_min = .1
 	skip_frames = 4
 
@@ -110,6 +113,7 @@ if __name__ == "__main__":
 		observation = env.reset() # shape (210, 160, 3)
 		action = env.action_space.sample()
 		encouraged_actions = np.zeros(6, dtype=np.int)
+		predicted_actions = np.zeros(6, dtype=np.int)
 
 		while not game_over:
 			env.render()
@@ -120,11 +124,6 @@ if __name__ == "__main__":
 				observation, reward, game_over, info = env.step(action)
 				score += reward
 			else:
-				if frame_index == 4:
-					frame_index = 3
-					input[0:2] = input[1:3]
-					input[3] = np.zeros(input[3].shape)
-
 				if np.random.rand() <= epsilon:
 					action = env.action_space.sample()
 				else:
@@ -132,6 +131,13 @@ if __name__ == "__main__":
 					action = np.argmax(q)
 
 				observation, reward, game_over, info = env.step(action)
+
+			if frame%skip_frames == 3 or game_over:
+				if frame_index == 4:
+					frame_index = 3
+					input[0:2] = input[1:3]
+					input[3] = np.zeros(input[3].shape)
+
 				input[frame_index] = preprocess(observation)
 				score += reward
 
@@ -140,9 +146,10 @@ if __name__ == "__main__":
 
 				exp_replay.remember([input_tm1, action, reward, input], game_over)
 
-				inputs, targets, encouraged = exp_replay.get_batch(model, batch_size=32)
+				inputs, targets, encouraged, predicted = exp_replay.get_batch(model, batch_size=32)
 
 				encouraged_actions += encouraged
+				predicted_actions += predicted
 
 				loss += model.train_on_batch(inputs, targets)
 
@@ -157,6 +164,7 @@ if __name__ == "__main__":
 		total_frames += frame
 		total_score += score
 		print "Episode %d, loss %f, score %d"%(i_episode, loss, score)
+		print "Predicted actions 1:%d 2:%d 3:%d 4:%d 5:%d 6:%d"%(predicted_actions[0], predicted_actions[1], predicted_actions[2], predicted_actions[3], predicted_actions[4], predicted_actions[5])
 		print "Encouraged actions 1:%d 2:%d 3:%d 4:%d 5:%d 6:%d"%(encouraged_actions[0], encouraged_actions[1], encouraged_actions[2], encouraged_actions[3], encouraged_actions[4], encouraged_actions[5])
 		print "Frames %d, epsilon %f"%(total_frames, epsilon)
 
