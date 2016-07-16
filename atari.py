@@ -61,7 +61,7 @@ def preprocess(x):
 if __name__ == "__main__":
 	episodes = 100000
 	epsilon = 1. # exploration
-	epsilon_degrade = .000001
+	epsilon_degrade = .00001
 	epsilon_min = .1
 	skip_frames = 4
 
@@ -148,7 +148,7 @@ if __name__ == "__main__":
 
 				exp_replay.remember([input_tm1, action, reward, input], game_over)
 
-				inputs, targets, encouraged, predicted, q_avg = exp_replay.get_batch(model, batch_size=32)
+				inputs, targets, encouraged, predicted, q_avg = exp_replay.get_batch(model, batch_size=128)
 
 				encouraged_actions += encouraged
 				predicted_actions += predicted
