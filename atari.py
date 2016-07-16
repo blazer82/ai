@@ -16,8 +16,8 @@ class ExperienceReplay(object):
 		self.memory = list()
 		self.discount = discount
 
-	def remember(self, states, game_over):
-		self.memory.append([states, game_over])
+	def remember(self, states, terminal):
+		self.memory.append([states, terminal])
 		if len(self.memory) > self.max_memory:
 			del self.memory[0]
 
@@ -31,7 +31,7 @@ class ExperienceReplay(object):
 		q_list = np.zeros(inputs.shape[0])
 		for i, idx in enumerate(np.random.randint(0, len_memory, size=inputs.shape[0])):
 			input_t, action_t, reward_t, input_tp1 = self.memory[idx][0]
-			game_over = self.memory[idx][1]
+			terminal = self.memory[idx][1]
 
 			inputs[i] = input_t
 
@@ -41,10 +41,12 @@ class ExperienceReplay(object):
 			q_list[i] = np.max(targets[i])
 			predicted_actions[np.argmax(targets[i])] += 1
 
-			if game_over:
+			if terminal:
 				targets[i, action_t] = reward_t
 			else:
 				targets[i, action_t] = reward_t + self.discount * q_next
+
+			print "Action %d rewarded with %f"%(action_t, targets[i, action_t])
 
 			encouraged_actions[np.argmax(targets[i])] += 1
 
@@ -110,20 +112,20 @@ if __name__ == "__main__":
 		frame = 0
 		frame_index = 0
 		score = 0
-		game_over = False
+		terminal = False
 		input = np.zeros((4, 80, 74))
 		observation = env.reset() # shape (210, 160, 3)
 		action = env.action_space.sample()
 		encouraged_actions = np.zeros(6, dtype=np.int)
 		predicted_actions = np.zeros(6, dtype=np.int)
 
-		while not game_over:
+		while not terminal:
 			env.render()
 
 			input_tm1 = input
 
 			if frame%skip_frames != 3:
-				observation, reward, game_over, info = env.step(action)
+				observation, reward, terminal, info = env.step(action)
 				score += reward
 			else:
 				if np.random.rand() <= epsilon:
@@ -132,9 +134,9 @@ if __name__ == "__main__":
 					q = model.predict(input.reshape(1, 4, 80, 74))[0]
 					action = np.argmax(q)
 
-				observation, reward, game_over, info = env.step(action)
+				observation, reward, terminal, info = env.step(action)
 
-			if frame%skip_frames == 3 or game_over:
+			if frame%skip_frames == 3 or terminal:
 				if frame_index == 4:
 					frame_index = 3
 					input[0:2] = input[1:3]
@@ -146,7 +148,7 @@ if __name__ == "__main__":
 				if game_over:
 					reward = -1
 
-				exp_replay.remember([input_tm1, action, reward, input], game_over)
+				exp_replay.remember([input_tm1, action, reward, input], terminal)
 
 				inputs, targets, encouraged, predicted, q_avg = exp_replay.get_batch(model, batch_size=128)
 
