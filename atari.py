@@ -6,7 +6,7 @@ from keras.models import Sequential
 from keras.layers.core import Dense, Flatten, Activation
 from keras.layers.convolutional import Convolution2D
 from keras.layers.normalization import BatchNormalization
-from keras.optimizers import sgd
+from keras.optimizers import RMSprop
 from PIL import Image
 
 
@@ -61,7 +61,7 @@ def preprocess(x):
 if __name__ == "__main__":
 	episodes = 100000
 	epsilon = 1. # exploration
-	epsilon_degrade = .00001
+	epsilon_degrade = 1e-6
 	epsilon_min = .1
 	skip_frames = 4
 
@@ -91,7 +91,7 @@ if __name__ == "__main__":
 	model.add(Dense(6, init='uniform'))
 	model.add(Activation('softmax'))
 
-	model.compile(sgd(lr=.002), "mse")
+	model.compile(RMSprop(lr=1e-3), loss='mse')
 
 	exp_replay = ExperienceReplay(max_memory=100000)
 
