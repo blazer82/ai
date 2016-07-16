@@ -27,6 +27,7 @@ class ExperienceReplay(object):
 		predicted_actions = np.zeros(num_actions, dtype=np.int)
 		inputs = np.zeros((min(len_memory, batch_size), 4, 80, 74))
 		targets = np.zeros((inputs.shape[0], num_actions))
+		q_list = np.zeros(inputs.shape[0])
 		for i, idx in enumerate(np.random.randint(0, len_memory, size=inputs.shape[0])):
 			input_t, action_t, reward_t, input_tp1 = self.memory[idx][0]
 			game_over = self.memory[idx][1]
@@ -36,6 +37,7 @@ class ExperienceReplay(object):
 			targets[i] = model.predict(input_t.reshape(1, 4, 80, 74))[0]
 			q_next = np.max(model.predict(input_tp1.reshape(1, 4, 80, 74))[0])
 
+			q_list[i] = np.max(targets[i])
 			predicted_actions[np.argmax(targets[i])] += 1
 
 			if game_over:
@@ -45,7 +47,7 @@ class ExperienceReplay(object):
 
 			encouraged_actions[np.argmax(targets[i])] += 1
 
-		return inputs, targets, encouraged_actions, predicted_actions
+		return inputs, targets, encouraged_actions, predicted_actions, np.average(q_list)
 
 def preprocess(x):
 	grey = np.average(x, 2)
@@ -87,7 +89,7 @@ if __name__ == "__main__":
 	model.add(Dense(6, init='uniform'))
 	model.add(Activation('softmax'))
 
-	model.compile(sgd(lr=.1), "mse")
+	model.compile(sgd(lr=.002), "mse")
 
 	exp_replay = ExperienceReplay(max_memory=100000)
 
@@ -97,7 +99,8 @@ if __name__ == "__main__":
 	total_frames = 0
 
 	for i_episode in range(episodes):
-		loss = 0.
+		loss = list()
+		q_list = list()
 		frame = 0
 		frame_index = 0
 		score = 0
@@ -139,12 +142,13 @@ if __name__ == "__main__":
 
 				exp_replay.remember([input_tm1, action, reward, input], game_over)
 
-				inputs, targets, encouraged, predicted = exp_replay.get_batch(model, batch_size=32)
+				inputs, targets, encouraged, predicted, q_avg = exp_replay.get_batch(model, batch_size=32)
 
 				encouraged_actions += encouraged
 				predicted_actions += predicted
+				q_list.append(q_avg)
 
-				loss += model.train_on_batch(inputs, targets)
+				loss.append(model.train_on_batch(inputs, targets))
 
 				frame_index += 1
 
@@ -156,7 +160,7 @@ if __name__ == "__main__":
 
 		total_frames += frame
 		total_score += score
-		print "Episode %d, loss %f, score %d"%(i_episode, loss, score)
+		print "Episode %d, mean loss %f, avg q %f, score %d"%(i_episode, np.average(loss), np.average(q_list), score)
 		print "Predicted actions 1:%d 2:%d 3:%d 4:%d 5:%d 6:%d"%(predicted_actions[0], predicted_actions[1], predicted_actions[2], predicted_actions[3], predicted_actions[4], predicted_actions[5])
 		print "Encouraged actions 1:%d 2:%d 3:%d 4:%d 5:%d 6:%d"%(encouraged_actions[0], encouraged_actions[1], encouraged_actions[2], encouraged_actions[3], encouraged_actions[4], encouraged_actions[5])
 		print "Frames %d, epsilon %f"%(total_frames, epsilon)
