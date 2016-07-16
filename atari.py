@@ -136,7 +136,7 @@ if __name__ == "__main__":
 
 				observation, reward, terminal, info = env.step(action)
 
-			if frame%skip_frames == 3 or terminal:
+			if frame%skip_frames == 3 or terminal or reward:
 				if frame_index == 4:
 					frame_index = 3
 					input[0:2] = input[1:3]
