@@ -66,13 +66,14 @@ if __name__ == "__main__":
 	skip_frames = 4
 
 	model = Sequential()
+
+	model.add(BatchNormalization(input_shape=(4, 80, 74)))
+
 	model.add(Convolution2D(16, 8, 8,
 		init='uniform',
 		subsample=(4, 4),
 		dim_ordering='th',
-		border_mode='same',
-		input_shape=(4, 80, 74)))
-	model.add(BatchNormalization())
+		border_mode='same'))
 	model.add(Activation('relu'))
 
 	model.add(Convolution2D(32, 4, 4,
