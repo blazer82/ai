@@ -1,5 +1,6 @@
 import gym
 import numpy as np
+import matplotlib.pyplot as plt
 from scipy import misc
 from keras.models import Sequential
 from keras.layers.core import Dense, Flatten, Activation
@@ -98,6 +99,10 @@ if __name__ == "__main__":
 	total_score = 0
 	total_frames = 0
 
+	plot_loss = list()
+	plot_score = list()
+	plot_q = list()
+
 	for i_episode in range(episodes):
 		loss = list()
 		q_list = list()
@@ -160,10 +165,24 @@ if __name__ == "__main__":
 
 		total_frames += frame
 		total_score += score
-		print "Episode %d, mean loss %f, avg q %f, score %d"%(i_episode, np.average(loss), np.average(q_list), score)
+		loss_avg = np.average(loss)
+		q_avg = np.average(q_list)
+		print "Episode %d, mean loss %f, avg q %f, score %d"%(i_episode, loss_avg, q_avg, score)
 		print "Predicted actions 1:%d 2:%d 3:%d 4:%d 5:%d 6:%d"%(predicted_actions[0], predicted_actions[1], predicted_actions[2], predicted_actions[3], predicted_actions[4], predicted_actions[5])
 		print "Encouraged actions 1:%d 2:%d 3:%d 4:%d 5:%d 6:%d"%(encouraged_actions[0], encouraged_actions[1], encouraged_actions[2], encouraged_actions[3], encouraged_actions[4], encouraged_actions[5])
 		print "Frames %d, epsilon %f"%(total_frames, epsilon)
+
+		plot_loss.append(loss_avg)
+		plot_q.append(q_avg)
+		plot_score.append(score)
+		plt.close()
+		s_loss = plt.subplot(311)
+		s_q = plt.subplot(312)
+		s_score = plt.subplot(313)
+		s_loss.plot(range(0, i_episode+1), plot_loss, 'b-')
+		s_q.plot(range(0, i_episode+1), plot_q, 'b-')
+		s_score.plot(range(0, i_episode+1), plot_score, 'b-')
+		plt.show(block=False)
 
 		if i_episode > 0 and i_episode%50 == 0:
 			print "Saving weights to disk..."
