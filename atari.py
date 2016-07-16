@@ -184,6 +184,6 @@ if __name__ == "__main__":
 		s_score.plot(range(0, i_episode+1), plot_score, 'b-')
 		plt.show(block=False)
 
-		if i_episode > 0 and i_episode%50 == 0:
+		if i_episode > 0 and i_episode%5 == 0:
 			print "Saving weights to disk..."
 			model.save_weights('atari_weights.h5', overwrite=True)
