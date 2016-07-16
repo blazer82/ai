@@ -41,10 +41,9 @@ class ExperienceReplay(object):
 			q_list[i] = np.max(targets[i])
 			predicted_actions[np.argmax(targets[i])] += 1
 
-			if terminal:
-				targets[i, action_t] = reward_t
-			else:
-				targets[i, action_t] = reward_t + self.discount * q_next
+			terminal_penalty = 1. - terminal
+
+			targets[i, action_t] =  (1. - terminal) * self.discount * q_next + reward_t
 
 			print "Action %d rewarded with %f"%(action_t, targets[i, action_t])
 
@@ -144,9 +143,6 @@ if __name__ == "__main__":
 
 				input[frame_index] = preprocess(observation)
 				score += reward
-
-				if game_over:
-					reward = -1
 
 				exp_replay.remember([input_tm1, action, reward, input], terminal)
 
