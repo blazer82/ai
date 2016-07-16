@@ -41,8 +41,6 @@ class ExperienceReplay(object):
 			q_list[i] = np.max(targets[i])
 			predicted_actions[np.argmax(targets[i])] += 1
 
-			terminal_penalty = 1. - terminal
-
 			targets[i, action_t] =  (1. - terminal) * self.discount * q_next + reward_t
 
 			if reward_t > 0. or terminal:
