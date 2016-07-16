@@ -45,7 +45,8 @@ class ExperienceReplay(object):
 
 			targets[i, action_t] =  (1. - terminal) * self.discount * q_next + reward_t
 
-			print "Action %d rewarded with %f"%(action_t, targets[i, action_t])
+			if reward_t > 0. or terminal:
+				print "Action %d rewarded with %f (sample #%d)"%(action_t, targets[i, action_t], idx)
 
 			encouraged_actions[np.argmax(targets[i])] += 1
 
