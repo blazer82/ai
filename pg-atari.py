@@ -28,14 +28,14 @@ if __name__ == "__main__":
 	model.add(BatchNormalization(input_shape=(2, 80, 74)))
 
 	model.add(Convolution2D(16, 8, 8,
-		init='uniform',
+		init='glorot_uniform',
 		subsample=(4, 4),
 		dim_ordering='th',
 		border_mode='same'))
 	model.add(Activation('relu'))
 
 	model.add(Convolution2D(32, 4, 4,
-		init='uniform',
+		init='glorot_uniform',
 		subsample=(2, 2),
 		dim_ordering='th',
 		border_mode='same'))
@@ -43,10 +43,10 @@ if __name__ == "__main__":
 
 	model.add(Flatten())
 
-	model.add(Dense(256, init='uniform'))
+	model.add(Dense(256, init='glorot_uniform'))
 	model.add(Activation('relu'))
 
-	model.add(Dense(6, init='uniform'))
+	model.add(Dense(6, init='glorot_uniform'))
 	model.add(Activation('softmax'))
 
 	model.compile(RMSprop(lr=1e-4), loss='mse')
