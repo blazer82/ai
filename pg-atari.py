@@ -92,11 +92,15 @@ if __name__ == "__main__":
 
 			exs = np.asarray(xs)
 			eqs = np.asarray(qs)
+			erewards = np.asarray(rewards)
 
 			# discount rewards
-			dr = np.flipud([r*discount**(i+1) for i,r in enumerate(reversed(rewards))])
+			dr = np.zeros(erewards.shape)
+			ra = 0
+			for i in reversed(range(0, erewards.size)):
+				ra = ra * discount + erewards[i]
+				dr[i] = ra
 			dr -= np.mean(dr)
-			dr /= np.std(dr) if np.std(dr) > 0. else 1.
 
 			for i,q in enumerate(eqs):
 				eqs[i][actions[i]] *= dr[i]
