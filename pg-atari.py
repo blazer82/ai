@@ -14,7 +14,8 @@ def preprocess(x):
 	img = Image.fromarray(grey)
 	img.thumbnail((110, 110), Image.NEAREST) # new shape (110, 84)
 	img = img.crop((5, 25, 79, 105)) # new shape (80, 74)
-	x_new = np.asarray(img, dtype=np.float32)
+	x_new = np.asarray(img, dtype=np.float32).copy()
+	x_new -= np.mean(x_new)
 	return x_new
 
 if __name__ == "__main__":
@@ -25,13 +26,12 @@ if __name__ == "__main__":
 
 	model = Sequential()
 
-	model.add(BatchNormalization(input_shape=(2, 80, 74)))
-
 	model.add(Convolution2D(16, 8, 8,
 		init='glorot_uniform',
 		subsample=(4, 4),
 		dim_ordering='th',
-		border_mode='same'))
+		border_mode='same',
+		input_shape=(2, 80, 74)))
 	model.add(Activation('relu'))
 
 	model.add(Convolution2D(32, 4, 4,
