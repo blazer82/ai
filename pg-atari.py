@@ -49,7 +49,7 @@ if __name__ == "__main__":
 	model.add(Dense(6, init='uniform'))
 	model.add(Activation('softmax'))
 
-	model.compile(RMSprop(lr=1e-6), loss='mse')
+	model.compile(RMSprop(lr=1e-4), loss='mse')
 
 	env = gym.make('Pong-v0')
 
