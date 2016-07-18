@@ -103,7 +103,7 @@ if __name__ == "__main__":
 			dr -= np.mean(dr)
 
 			for i,q in enumerate(eqs):
-				eqs[i][actions[i]] *= dr[i]
+				eqs[i][actions[i]] += dr[i]
 
 			targets = np.asarray(eqs)
 
