@@ -62,6 +62,8 @@ if __name__ == "__main__":
 	actions = []
 	rewards = []
 	losses = []
+	scores = []
+	meanqs = []
 	e = epsilon
 
 	while True:
@@ -110,11 +112,25 @@ if __name__ == "__main__":
 			bx = exs.reshape(exs.shape[0], 2, 80, 74)
 			loss = model.train_on_batch(bx, targets)
 
-			losses.append(loss)
 
+			meanq = np.mean(np.max(qs, axis=1))
+			losses.append(loss)
+			scores.append(score)
+			meanqs.append(meanq)
 
 			# log
-			print "Episode %d, loss %f, epsilon %f, score %d"%(episode, loss, e, score)
+			print "Episode %d, loss %f, mean q %f, epsilon %f, score %d"%(episode, loss, meanq, e, score)
+
+			# plot
+			if episode > 3:
+				plt.close()
+				s_loss = plt.subplot(311)
+				s_q = plt.subplot(312)
+				s_score = plt.subplot(313)
+				s_loss.plot(range(2, episode), losses[2:], 'b-')
+				s_q.plot(range(0, episode), meanqs, 'b-')
+				s_score.plot(range(0, episode), scores, 'b-')
+				plt.show(block=False)
 
 			# reset
 			xs = []
@@ -128,13 +144,9 @@ if __name__ == "__main__":
 			if e > epsilon_min:
 				e = epsilon - epsilon_degrade*episode
 
-			# plot
-			if episode > 2:
-				plt.close()
-				plt.plot(range(2, episode), losses[2:], 'b-')
-				plt.show(block=False)
-
-			# save model
+			# save model and plot
 			if episode%10 == 0:
 				print "Saving weights to disk..."
 				model.save_weights('pg-atari_weights.h5', overwrite=True)
+				print "Saving plot to disk..."
+				plt.savefig('pg-atari_plot.png')
