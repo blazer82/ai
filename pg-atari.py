@@ -6,6 +6,7 @@ from keras.layers.core import Dense, Flatten, Activation
 from keras.layers.convolutional import Convolution2D
 from keras.layers.normalization import BatchNormalization
 from keras.optimizers import RMSprop
+from keras.utils.np_utils import to_categorical
 from PIL import Image
 
 
@@ -49,7 +50,7 @@ if __name__ == "__main__":
 	model.add(Dense(6, init='glorot_uniform'))
 	model.add(Activation('softmax'))
 
-	model.compile(RMSprop(lr=1e-5), loss='mse')
+	model.compile(RMSprop(lr=1e-2), loss='mse')
 
 	env = gym.make('Pong-v0')
 
@@ -104,10 +105,13 @@ if __name__ == "__main__":
 				dr[i] = ra
 			dr -= np.mean(dr)
 
+			targets = []
 			for i,q in enumerate(eqs):
 				eqs[i][actions[i]] += dr[i]
+				targets.append(np.argmax(eqs[i]))
 
 			targets = np.asarray(eqs)
+			targets = to_categorical(np.asarray(targets), 6)
 
 			bx = exs.reshape(exs.shape[0], 2, 80, 74)
 			loss = model.train_on_batch(bx, targets)
