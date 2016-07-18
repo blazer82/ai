@@ -20,7 +20,7 @@ def preprocess(x):
 
 if __name__ == "__main__":
 	epsilon = 1. # exploration
-	epsilon_degrade = 1e-3
+	epsilon_degrade = 1e-4
 	epsilon_min = .1
 	discount = .99
 
@@ -49,7 +49,7 @@ if __name__ == "__main__":
 	model.add(Dense(6, init='glorot_uniform'))
 	model.add(Activation('softmax'))
 
-	model.compile(RMSprop(lr=1e-4), loss='mse')
+	model.compile(RMSprop(lr=1e-5), loss='mse')
 
 	env = gym.make('Pong-v0')
 
