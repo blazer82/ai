@@ -110,7 +110,6 @@ if __name__ == "__main__":
 				eqs[i][actions[i]] += dr[i]
 				targets.append(np.argmax(eqs[i]))
 
-			targets = np.asarray(eqs)
 			targets = to_categorical(np.asarray(targets), 6)
 
 			bx = exs.reshape(exs.shape[0], 2, 80, 74)
