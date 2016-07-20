@@ -6,7 +6,6 @@ from keras.layers.core import Dense, Flatten, Activation
 from keras.layers.convolutional import Convolution2D
 from keras.layers.normalization import BatchNormalization
 from keras.optimizers import RMSprop
-from keras.utils.np_utils import to_categorical
 from PIL import Image
 
 
@@ -50,7 +49,7 @@ if __name__ == "__main__":
 	model.add(Dense(6, init='glorot_uniform'))
 	model.add(Activation('softmax'))
 
-	model.compile(RMSprop(lr=1e-2), loss='mse')
+	model.compile(RMSprop(lr=1e-4), loss='mse')
 
 	env = gym.make('Pong-v0')
 
@@ -60,6 +59,7 @@ if __name__ == "__main__":
 	prev_x = np.zeros((80, 74))
 	xs = []
 	qs = []
+	ys = []
 	actions = []
 	rewards = []
 	losses = []
@@ -79,10 +79,14 @@ if __name__ == "__main__":
 
 		# determine next action
 		q = model.predict(x.reshape(1, 2, 80, 74))[0]
-		action = np.argmax(q) if np.random.rand() > e else np.random.randint(0, 6)
+		action = np.random.choice(6, 1, p=q/np.sum(q))[0]
+
+		y = q.copy()
+		y[action] = 1. # Encourage current action
 
 		qs.append(q)
 		actions.append(action)
+		ys.append(y)
 
 		# execute step and make observation
 		observation, reward, terminal, info = env.step(action)
@@ -95,25 +99,24 @@ if __name__ == "__main__":
 
 			exs = np.asarray(xs)
 			eqs = np.asarray(qs)
+			eys = np.asarray(ys)
 			erewards = np.asarray(rewards)
 
 			# discount rewards
 			dr = np.zeros(erewards.shape)
 			ra = 0
 			for i in reversed(range(0, erewards.size)):
+				if erewards[i] != 0: ra = 0 # Pong specific?
 				ra = ra * discount + erewards[i]
 				dr[i] = ra
 			dr -= np.mean(dr)
+			dr /= np.std(dr) if np.std(dr) > 0. else 1.
 
-			targets = []
-			for i,q in enumerate(eqs):
-				eqs[i][actions[i]] += dr[i]
-				targets.append(np.argmax(eqs[i]))
+			for i,a in enumerate(actions):
+				eys[i][a] *= dr[i]
 
-			targets = to_categorical(np.asarray(targets), 6)
 
-			bx = exs.reshape(exs.shape[0], 2, 80, 74)
-			loss = model.train_on_batch(bx, targets)
+			loss = model.train_on_batch(exs, eys)
 
 
 			meanq = np.mean(np.max(qs, axis=1))
@@ -125,12 +128,12 @@ if __name__ == "__main__":
 			print "Episode %d, loss %f, mean q %f, epsilon %f, score %d"%(episode, loss, meanq, e, score)
 
 			# plot
-			if episode > 3:
+			if episode > 1:
 				plt.close()
 				s_loss = plt.subplot(311)
 				s_q = plt.subplot(312)
 				s_score = plt.subplot(313)
-				s_loss.plot(range(2, episode), losses[2:], 'b-')
+				s_loss.plot(range(0, episode), losses, 'b-')
 				s_q.plot(range(0, episode), meanqs, 'b-')
 				s_score.plot(range(0, episode), scores, 'b-')
 				plt.show(block=False)
@@ -138,6 +141,7 @@ if __name__ == "__main__":
 			# reset
 			xs = []
 			qs = []
+			ys = []
 			actions = []
 			rewards = []
 			prev_x = np.zeros((80, 74))
