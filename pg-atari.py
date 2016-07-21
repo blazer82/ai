@@ -135,7 +135,7 @@ if __name__ == "__main__":
 				print "Episode %d, loss %f, mean q %f, epsilon %f, mean score %f"%(episode, loss, meanq, e, mean_score)
 
 				# plot
-				if episode > 10:
+				if episode > episodes_per_batch:
 					plt.close()
 					s_loss = plt.subplot(311)
 					s_q = plt.subplot(312)
