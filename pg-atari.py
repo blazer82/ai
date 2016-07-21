@@ -140,9 +140,9 @@ if __name__ == "__main__":
 					s_loss = plt.subplot(311)
 					s_q = plt.subplot(312)
 					s_score = plt.subplot(313)
-					s_loss.plot(range(0, episode), losses, 'b-')
-					s_q.plot(range(0, episode), meanqs, 'b-')
-					s_score.plot(range(0, episode), mean_scores, 'b-')
+					s_loss.plot(range(0, len(losses)), losses, 'b-')
+					s_q.plot(range(0, len(meanqs)), meanqs, 'b-')
+					s_score.plot(range(0, len(mean_scores)), mean_scores, 'b-')
 					plt.show(block=False)
 
 				# reset
