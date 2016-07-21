@@ -24,6 +24,7 @@ if __name__ == "__main__":
 	epsilon_min = .1
 	discount = .99
 	episodes_per_batch = 1
+	batch_size = None
 
 	model = Sequential()
 
@@ -123,7 +124,11 @@ if __name__ == "__main__":
 				for i,a in enumerate(actions):
 					eys[i][a] *= dr[i]
 
-				loss = model.train_on_batch(exs, eys)
+				if batch_size == None:
+					loss = model.train_on_batch(exs, eys)
+				else:
+					history = model.fit(exs, eys, nb_epoch=1, batch_size=batch_size, verbose=0)
+					loss = history.history['loss'][0]
 
 				meanq = np.mean(np.max(qs, axis=1))
 				mean_score = np.mean(scores)
