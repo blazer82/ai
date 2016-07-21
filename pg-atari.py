@@ -23,7 +23,7 @@ if __name__ == "__main__":
 	epsilon_degrade = 0
 	epsilon_min = .1
 	discount = .99
-	episodes_per_batch = 10
+	episodes_per_batch = 1
 
 	model = Sequential()
 
@@ -151,6 +151,7 @@ if __name__ == "__main__":
 				ys = []
 				actions = []
 				rewards = []
+				scores = []
 
 				if e > epsilon_min:
 					e = epsilon - epsilon_degrade*episode
