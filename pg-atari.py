@@ -19,12 +19,12 @@ def preprocess(x):
 	return x_new
 
 if __name__ == "__main__":
-	epsilon = .2 # exploration
+	epsilon = 1. # exploration
 	epsilon_degrade = 0
 	epsilon_min = .1
 	discount = .99
-	episodes_per_batch = 1
-	batch_size = None
+	episodes_per_batch = 10
+	batch_size = 128
 
 	model = Sequential()
 
