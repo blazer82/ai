@@ -67,6 +67,7 @@ if __name__ == "__main__":
 	losses = []
 	scores = []
 	mean_scores = []
+	max_scores = []
 	meanqs = []
 	e = epsilon
 
@@ -132,8 +133,10 @@ if __name__ == "__main__":
 
 				meanq = np.mean(np.max(qs, axis=1))
 				mean_score = np.mean(scores)
+				max_score = np.max(scores)
 				losses.append(loss)
 				mean_scores.append(mean_score)
+				max_scores.append(max_score)
 				meanqs.append(meanq)
 
 				# log
@@ -148,6 +151,8 @@ if __name__ == "__main__":
 					s_loss.plot(range(0, len(losses)), losses, 'b-')
 					s_q.plot(range(0, len(meanqs)), meanqs, 'b-')
 					s_score.plot(range(0, len(mean_scores)), mean_scores, 'b-')
+					if episodes_per_batch > 1:
+						s_score.plot(range(0, len(max_scores)), max_scores, 'g-')
 					plt.show(block=False)
 
 				# reset
