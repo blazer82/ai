@@ -34,6 +34,7 @@ if __name__ == "__main__":
 		dim_ordering='th',
 		border_mode='same',
 		input_shape=(2, 80, 74)))
+	model.add(BatchNormalization())
 	model.add(Activation('relu'))
 
 	model.add(Convolution2D(32, 4, 4,
@@ -41,11 +42,13 @@ if __name__ == "__main__":
 		subsample=(2, 2),
 		dim_ordering='th',
 		border_mode='same'))
+	model.add(BatchNormalization())
 	model.add(Activation('relu'))
 
 	model.add(Flatten())
 
 	model.add(Dense(256, init='glorot_uniform'))
+	model.add(BatchNormalization())
 	model.add(Activation('relu'))
 
 	model.add(Dense(6, init='glorot_uniform'))
