@@ -128,7 +128,7 @@ if __name__ == "__main__":
 				if batch_size == None:
 					loss = model.train_on_batch(exs, eys)
 				else:
-					history = model.fit(exs, eys, nb_epoch=1, batch_size=batch_size, verbose=0)
+					history = model.fit(exs, eys, nb_epoch=1, batch_size=batch_size, verbose=1)
 					loss = history.history['loss'][0]
 
 				meanq = np.mean(np.max(qs, axis=1))
