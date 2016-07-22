@@ -71,7 +71,7 @@ if __name__ == "__main__":
 	e = epsilon
 
 	while True:
-		env.render()
+		#env.render()
 
 		# preprocess observation and calculate frame difference
 		cur_x = preprocess(observation)
