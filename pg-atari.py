@@ -28,7 +28,7 @@ if __name__ == "__main__":
 
 	model = Sequential()
 
-	model.add(Convolution2D(16, 8, 8,
+	model.add(Convolution2D(32, 8, 8,
 		init='glorot_uniform',
 		subsample=(4, 4),
 		dim_ordering='th',
@@ -37,7 +37,7 @@ if __name__ == "__main__":
 	model.add(BatchNormalization())
 	model.add(Activation('relu'))
 
-	model.add(Convolution2D(32, 4, 4,
+	model.add(Convolution2D(64, 4, 4,
 		init='glorot_uniform',
 		subsample=(2, 2),
 		dim_ordering='th',
@@ -45,16 +45,24 @@ if __name__ == "__main__":
 	model.add(BatchNormalization())
 	model.add(Activation('relu'))
 
+	model.add(Convolution2D(64, 3, 3,
+		init='glorot_uniform',
+		subsample=(1, 1),
+		dim_ordering='th',
+		border_mode='same'))
+	model.add(BatchNormalization())
+	model.add(Activation('relu'))
+
 	model.add(Flatten())
 
-	model.add(Dense(256, init='glorot_uniform'))
+	model.add(Dense(512, init='glorot_uniform'))
 	model.add(BatchNormalization())
 	model.add(Activation('relu'))
 
 	model.add(Dense(6, init='glorot_uniform'))
 	model.add(Activation('softmax'))
 
-	model.compile(RMSprop(lr=1e-4), loss='mse')
+	model.compile(RMSprop(lr=25e-5), loss='mse')
 
 	env = gym.make('Pong-v0')
 
