@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 from keras.models import Sequential
 from keras.layers.core import Dense, Flatten, Activation
 from keras.layers.convolutional import Convolution2D
-from keras.layers.normalization import BatchNormalization
 from keras.optimizers import RMSprop
 from PIL import Image
 
@@ -28,35 +27,31 @@ if __name__ == "__main__":
 
 	model = Sequential()
 
-	model.add(Convolution2D(32, 8, 8,
+	model.add(Convolution2D(16, 8, 8,
 		init='glorot_uniform',
 		subsample=(4, 4),
 		dim_ordering='th',
-		border_mode='same',
+		border_mode='valid',
 		input_shape=(2, 80, 74)))
-	model.add(BatchNormalization())
 	model.add(Activation('relu'))
 
-	model.add(Convolution2D(64, 4, 4,
+	model.add(Convolution2D(32, 4, 4,
 		init='glorot_uniform',
 		subsample=(2, 2),
 		dim_ordering='th',
-		border_mode='same'))
-	model.add(BatchNormalization())
+		border_mode='valid'))
 	model.add(Activation('relu'))
 
-	model.add(Convolution2D(64, 3, 3,
+	model.add(Convolution2D(32, 3, 3,
 		init='glorot_uniform',
 		subsample=(1, 1),
 		dim_ordering='th',
-		border_mode='same'))
-	model.add(BatchNormalization())
+		border_mode='valid'))
 	model.add(Activation('relu'))
 
 	model.add(Flatten())
 
-	model.add(Dense(512, init='glorot_uniform'))
-	model.add(BatchNormalization())
+	model.add(Dense(256, init='glorot_uniform'))
 	model.add(Activation('relu'))
 
 	model.add(Dense(6, init='glorot_uniform'))
@@ -139,7 +134,7 @@ if __name__ == "__main__":
 				if batch_size == None:
 					loss = model.train_on_batch(exs, eys)
 				else:
-					history = model.fit(exs, eys, nb_epoch=1, batch_size=batch_size, verbose=1)
+					history = model.fit(exs, eys, nb_epoch=1, batch_size=batch_size, shuffle=True, verbose=1)
 					loss = history.history['loss'][0]
 
 				meanq = np.mean(np.max(qs, axis=1))
