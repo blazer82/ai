@@ -49,22 +49,25 @@ class Agent:
 		nbr_experiences = len(experience)
 		X_t = np.zeros((nbr_experiences,) + experience[0][0].shape)
 		y_t = np.zeros((nbr_experiences,) + experience[0][1].shape)
-		for i in range(0, nbr_experiences):
-			X, y, reward, terminal = experience[i]
 
-			if terminal:
-				reward = -1.
+		# WHY DO ALL THE ZEROS IN X_t AND y_t
+		# HAVE SUCH A POSITIVE EFFECT ON THE OVERALL LEARNING PROGRESS?
+		# THIS IS NOT AN ACCEPTABLE SOLUTION
+
+		for i in reversed(range(max(0, nbr_experiences - 5), nbr_experiences)):
+			X, y, reward, terminal = experience[i]
 
 			X_t[i] = X
 			y_t[i] = y
 
 			action = np.argmax(y_t[i])
-
-			y_t[i][action] = np.clip(reward * i / 10, -1., 1.)
+			y_t[i][action] += -2. * .65**(nbr_experiences - (i+1))
+			y_t[i] -= np.mean(y_t[i])
+			y_t[i] /= np.max(y_t[i])
 
 		while overfit:
 			self.model.learn(X_t, y_t)
 
-		self.model.learn(X_t, y_t)
+		self.model.learn(X_t[-300:], y_t[-300:])
 
 		return nbr_experiences

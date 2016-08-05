@@ -9,7 +9,7 @@ class Model:
 		self.batch_size = batch_size
 		self.model = Sequential()
 
-		self.model.add(Convolution1D(4, 1, input_shape=(2, 4)))
+		self.model.add(Convolution1D(4, 2, input_shape=(2, 4)))
 		self.model.add(Activation(activation))
 
 		self.model.add(Flatten())
@@ -32,7 +32,7 @@ class Model:
 		return self.model.predict(X.reshape((1,) + X.shape))[0]
 
 	def learn(self, X, y):
-		return self.model.fit(X, y, nb_epoch=1, batch_size=self.batch_size, shuffle=True, verbose=1)
+		return self.model.fit(X, y, nb_epoch=1, batch_size=self.batch_size, shuffle=True, verbose=0)
 
 	def save(self, filename):
 		return self.model.save_weights(filename, overwrite=True)
