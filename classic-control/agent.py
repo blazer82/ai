@@ -29,16 +29,20 @@ class Agent:
 		nbr_experiences = len(experience)
 		X_t = np.zeros((nbr_experiences,) + experience[0][0].shape)
 		y_t = np.zeros((nbr_experiences,) + experience[0][1].shape)
-		for i in range(0, nbr_experiences - 2):
+		for i in range(0, nbr_experiences):
 			X, y, reward, terminal = experience[i]
+
+			if terminal:
+				reward = -1.
 
 			X_t[i] = X
 			y_t[i] = y
 
 			action = np.argmax(y_t[i])
-			q_next = np.max(experience[i + 1][1])
 
-			y_t[i][action] = (1. - terminal) * .99 * q_next + reward
+			y_t[i][action] = np.clip(reward * i / 10, -1., 1.)
+
+			print "Learn", X_t[i], y_t[i]
 
 		while overfit:
 			self.model.learn(X_t, y_t)
