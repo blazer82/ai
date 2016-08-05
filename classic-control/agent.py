@@ -6,6 +6,26 @@ class Agent:
 		self.env = env
 		self.model = model
 
+	def play(self):
+		terminal = False
+		observation = self.env.reset()
+		X = np.zeros((2,) + observation.shape)
+		X[0] = observation
+		X[1] = observation
+
+		total_reward = 0
+		while terminal == False:
+			y = self.model.predict(X)
+			action = np.argmax(y)
+
+			observation, reward, terminal, info = self.env.executeAction(action)
+			total_reward += reward
+
+			X[0] = X[1]
+			X[1] = observation
+
+		return total_reward
+
 	def learn(self, overfit=False):
 		terminal = False
 		observation = self.env.reset()
@@ -42,9 +62,9 @@ class Agent:
 
 			y_t[i][action] = np.clip(reward * i / 10, -1., 1.)
 
-			print "Learn", X_t[i], y_t[i]
-
 		while overfit:
 			self.model.learn(X_t, y_t)
 
 		self.model.learn(X_t, y_t)
+
+		return nbr_experiences

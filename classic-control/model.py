@@ -5,7 +5,7 @@ from keras.optimizers import SGD
 
 
 class Model:
-	def __init__(self, activation='tanh', batch_size=32, load=None):
+	def __init__(self, activation='tanh', batch_size=32, lr=1e-2, load=None):
 		self.batch_size = batch_size
 		self.model = Sequential()
 
@@ -17,13 +17,16 @@ class Model:
 		self.model.add(Dense(4))
 		self.model.add(Activation(activation))
 
+		self.model.add(Dense(4))
+		self.model.add(Activation(activation))
+
 		self.model.add(Dense(2))
 		self.model.add(Activation('softmax'))
 
 		if load != None:
 			self.model.load_weights(load)
 
-		self.model.compile(SGD(), loss='mse')
+		self.model.compile(SGD(lr=lr), loss='mse')
 
 	def predict(self, X):
 		return self.model.predict(X.reshape((1,) + X.shape))[0]
