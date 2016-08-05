@@ -1,27 +1,29 @@
 from keras.models import Sequential
 from keras.layers.core import Dense, Flatten, Activation
 from keras.layers.convolutional import Convolution1D
+from keras.layers.normalization import BatchNormalization
 from keras.optimizers import SGD
 
 
 class Model:
-	def __init__(self, activation='tanh', batch_size=32, lr=1e-2, load=None):
+	def __init__(self, init='normal', activation='relu', batch_size=32, lr=1e-2, load=None):
 		self.batch_size = batch_size
 		self.model = Sequential()
 
-		self.model.add(Convolution1D(4, 2, input_shape=(2, 4)))
+		self.model.add(Convolution1D(8, 1, input_shape=(2, 4), init=init))
 		self.model.add(Activation(activation))
 
 		self.model.add(Flatten())
 
-		self.model.add(Dense(4))
+		self.model.add(Dense(8, init=init))
+		self.model.add(BatchNormalization())
 		self.model.add(Activation(activation))
 
-		self.model.add(Dense(4))
+		self.model.add(Dense(8, init=init))
+		self.model.add(BatchNormalization())
 		self.model.add(Activation(activation))
 
-		self.model.add(Dense(2))
-		self.model.add(Activation('softmax'))
+		self.model.add(Dense(2, init=init))
 
 		if load != None:
 			self.model.load_weights(load)
