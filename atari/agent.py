@@ -30,7 +30,7 @@ class Agent:
 
 		return total_reward
 
-	def learn(self, overfit=False):
+	def learn(self, overfit=False, skip_frame=4):
 		self.episode += 1.
 		terminal = False
 		observation = self.env.reset()
@@ -42,21 +42,31 @@ class Agent:
 
 		experience = []
 		total_reward = 0
+		frame = 0
+		action = self.env.env.action_space.sample()
 		while terminal == False and total_reward < 200:
-			y = self.model.predict(X)
+			frame += 1
 
-			if np.random.rand() <= epsilon:
-				action = np.random.randint(0, len(y))
-			else:
-				action = np.argmax(y)
+			if frame%skip_frame != 0:
+				observation, reward, terminal, info = self.env.executeAction(action)
 
-			observation, reward, terminal, info = self.env.executeAction(action)
-			total_reward += reward
+			if frame%skip_frame == 0 or reward != 0 or terminal:
+				y = self.model.predict(X)
 
-			experience.append((X.copy(), y, reward, terminal))
+				if frame%skip_frame == 0:
+					if np.random.rand() <= epsilon:
+						action = np.random.randint(0, len(y))
+					else:
+						action = np.argmax(y)
 
-			X[0] = X[1]
-			X[1] = observation
+					observation, reward, terminal, info = self.env.executeAction(action)
+
+				total_reward += reward
+
+				experience.append((X.copy(), y, reward, terminal))
+
+				X[0] = X[1]
+				X[1] = observation
 
 		nbr_experiences = len(experience)
 		X_t = np.zeros((nbr_experiences,) + experience[0][0].shape)
