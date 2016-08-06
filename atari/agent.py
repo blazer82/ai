@@ -84,6 +84,7 @@ class Agent:
 			action = np.argmax(y_t[i])
 			y_t[i, action] += mod
 			y_t[i] -= np.mean(y_t[i])
+			y_t[i] /= np.std(y_t[i])
 
 
 		while overfit:
