@@ -66,7 +66,7 @@ class Agent:
 				distance = 0
 				mod = reward
 
-			mod *= .9**distance
+			mod *= .99**distance
 
 			action = np.argmax(y_t[i])
 			y_t[i, action] += mod

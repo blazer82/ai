@@ -2,7 +2,7 @@ from agent import Agent
 from environment import Environment
 from model import Model
 
-model = Model(batch_size=512, lr=1e-4, load=None)
+model = Model(batch_size=1024, lr=1e-4, load=None)
 env = Environment(env_type=Environment.TYPE_PONG)
 agent = Agent(env=env, model=model)
 
