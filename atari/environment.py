@@ -6,9 +6,10 @@ from PIL import Image
 class Environment:
 	TYPE_PONG='Pong-v0'
 
-	def __init__(self, env_type):
+	def __init__(self, env_type, render=False):
 		self.env = gym.make(env_type)
 		self.must_be_reset = True
+		self.render = render
 
 	def preprocessObservation(self, observation):
 		grey = np.average(observation, 2)
@@ -28,6 +29,9 @@ class Environment:
 			self.reset()
 
 		observation, reward, terminal, info = self.env.step(action)
+
+		if self.render:
+			self.env.render()
 
 		if terminal:
 			self.must_be_reset = True
