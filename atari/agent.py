@@ -61,6 +61,7 @@ class Agent:
 		nbr_experiences = len(experience)
 		X_t = np.zeros((nbr_experiences,) + experience[0][0].shape)
 		y_t = np.zeros((nbr_experiences,) + experience[0][1].shape)
+		q = np.zeros(nbr_experiences)
 
 		distance = 0
 		mod = 0.
@@ -69,6 +70,7 @@ class Agent:
 
 			X_t[i] = X
 			y_t[i] = y
+			q[i] = max(y)
 			# print(y)
 
 			if reward == 0:
@@ -87,6 +89,6 @@ class Agent:
 		while overfit:
 			self.model.learn(X_t, y_t)
 
-		self.model.learn(X_t, y_t)
+		history = self.model.learn(X_t, y_t)
 
-		return total_reward
+		return total_reward, history.history['loss'][0], np.mean(q), epsilon
