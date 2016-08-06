@@ -14,7 +14,7 @@ class Agent:
 		X[1] = observation
 
 		total_reward = 0
-		while terminal == False:
+		while terminal == False and total_reward < 200:
 			y = self.model.predict(X)
 			action = np.argmax(y)
 
@@ -35,7 +35,7 @@ class Agent:
 
 		experience = []
 
-		while terminal == False:
+		while terminal == False and len(experience) < 200:
 			y = self.model.predict(X)
 			action = np.argmax(y)
 
@@ -50,6 +50,8 @@ class Agent:
 		X_t = np.zeros((nbr_experiences,) + experience[0][0].shape)
 		y_t = np.zeros((nbr_experiences,) + experience[0][1].shape)
 
+		terminal_episode = experience[-1][3] + 0.
+
 		for i in reversed(range(0, nbr_experiences)):
 			X, y, reward, terminal = experience[i]
 
@@ -58,12 +60,12 @@ class Agent:
 			# print(y)
 
 			action = np.argmax(y_t[i])
-			y_t[i, action] = 1. -2. * .9**(nbr_experiences - (i+1))
+			y_t[i, action] = 1. + (0. - terminal_episode) * 2. * .9**(nbr_experiences - (i+1))
 			y_t[i] -= np.mean(y_t[i])
 
 		while overfit:
 			self.model.learn(X_t, y_t)
 
-		self.model.learn(X_t[-300:], y_t[-300:])
+		self.model.learn(X_t, y_t)
 
 		return nbr_experiences

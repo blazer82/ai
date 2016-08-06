@@ -10,12 +10,13 @@ class Environment:
 		self.env = gym.make(env_type)
 		self.must_be_reset = True
 		self.render = render
+		self.monitor = monitor
 
-		if monitor:
+		if self.monitor:
 			self.env.monitor.start('monitor', force=True)
 
 	def close(self):
-		if monitor:
+		if self.monitor:
 			self.env.monitor.close()
 
 	def reset(self):
