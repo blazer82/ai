@@ -6,6 +6,26 @@ class Agent:
 		self.env = env
 		self.model = model
 
+	def play(self):
+		terminal = False
+		observation = self.env.reset()
+		X = np.zeros((2,) + observation.shape)
+		X[0] = observation
+		X[1] = observation
+
+		total_reward = 0
+		while terminal == False and total_reward < 200:
+			y = self.model.predict(X)
+			action = np.argmax(y)
+
+			observation, reward, terminal, info = self.env.executeAction(action)
+			total_reward += reward
+
+			X[0] = X[1]
+			X[1] = observation
+
+		return total_reward
+
 	def learn(self, overfit=False):
 		terminal = False
 		observation = self.env.reset()
@@ -14,14 +34,15 @@ class Agent:
 		X[1] = observation
 
 		experience = []
-
-		while terminal == False:
+		total_reward = 0
+		while terminal == False and total_reward < 200:
 			y = self.model.predict(X)
 			action = np.argmax(y)
 
 			observation, reward, terminal, info = self.env.executeAction(action)
+			total_reward += reward
 
-			experience.append((X, y, reward, terminal))
+			experience.append((X.copy(), y, reward, terminal))
 
 			X[0] = X[1]
 			X[1] = observation
@@ -29,18 +50,32 @@ class Agent:
 		nbr_experiences = len(experience)
 		X_t = np.zeros((nbr_experiences,) + experience[0][0].shape)
 		y_t = np.zeros((nbr_experiences,) + experience[0][1].shape)
-		for i in range(0, nbr_experiences - 2):
+
+		distance = 0
+		mod = 0.
+		for i in reversed(range(0, nbr_experiences)):
 			X, y, reward, terminal = experience[i]
 
 			X_t[i] = X
 			y_t[i] = y
+			# print(y)
+
+			if reward == 0:
+				distance += 1
+			else:
+				distance = 0
+				mod = reward
+
+			mod *= .9**distance
 
 			action = np.argmax(y_t[i])
-			q_next = np.max(experience[i + 1][1])
+			y_t[i, action] += mod
+			y_t[i] -= np.mean(y_t[i])
 
-			y_t[i][action] = (1. - terminal) * .99 * q_next + reward
 
 		while overfit:
 			self.model.learn(X_t, y_t)
 
 		self.model.learn(X_t, y_t)
+
+		return total_reward

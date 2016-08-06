@@ -1,11 +1,12 @@
 from keras.models import Sequential
 from keras.layers.core import Dense, Flatten, Activation
 from keras.layers.convolutional import Convolution2D
+from keras.layers.normalization import BatchNormalization
 from keras.optimizers import RMSprop
 
 
 class Model:
-	def __init__(self, init='glorot_uniform', activation='relu', batch_size=32, load=None):
+	def __init__(self, init='glorot_uniform', activation='relu', batch_size=32, lr=1e-3, load=None):
 		self.batch_size = batch_size
 		self.model = Sequential()
 
@@ -15,6 +16,7 @@ class Model:
 			dim_ordering='th',
 			border_mode='valid',
 			input_shape=(2, 80, 74)))
+		self.model.add(BatchNormalization())
 		self.model.add(Activation(activation))
 
 		self.model.add(Convolution2D(32, 4, 4,
@@ -22,6 +24,7 @@ class Model:
 			subsample=(2, 2),
 			dim_ordering='th',
 			border_mode='valid'))
+		self.model.add(BatchNormalization())
 		self.model.add(Activation(activation))
 
 		self.model.add(Convolution2D(32, 3, 3,
@@ -29,20 +32,21 @@ class Model:
 			subsample=(1, 1),
 			dim_ordering='th',
 			border_mode='valid'))
+		self.model.add(BatchNormalization())
 		self.model.add(Activation(activation))
 
 		self.model.add(Flatten())
 
 		self.model.add(Dense(256, init=init))
+		self.model.add(BatchNormalization())
 		self.model.add(Activation(activation))
 
 		self.model.add(Dense(6, init=init))
-		self.model.add(Activation('softmax'))
 
 		if load != None:
 			self.model.load_weights(load)
 
-		self.model.compile(RMSprop(lr=25e-5), loss='mse')
+		self.model.compile(RMSprop(lr=lr), loss='mse')
 
 	def predict(self, X):
 		return self.model.predict(X.reshape((1,) + X.shape))[0]
