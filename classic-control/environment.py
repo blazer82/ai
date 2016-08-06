@@ -6,10 +6,17 @@ from PIL import Image
 class Environment:
 	TYPE_CART_POLE='CartPole-v0'
 
-	def __init__(self, env_type, render=False):
+	def __init__(self, env_type, render=False, monitor=False):
 		self.env = gym.make(env_type)
 		self.must_be_reset = True
 		self.render = render
+
+		if monitor:
+			self.env.monitor.start('monitor', force=True)
+
+	def close(self):
+		if monitor:
+			self.env.monitor.close()
 
 	def reset(self):
 		self.must_be_reset = False
