@@ -2,9 +2,13 @@ import numpy as np
 
 
 class Agent:
-	def __init__(self, env, model):
+	def __init__(self, env, model, epsilon=.9, min_epsilon=.1, epsilon_decay=1e-3):
 		self.env = env
 		self.model = model
+		self.epsilon = epsilon
+		self.min_epsilon = min_epsilon
+		self.epsilon_decay = epsilon_decay
+		self.episode = 0
 
 	def play(self):
 		terminal = False
@@ -27,17 +31,24 @@ class Agent:
 		return total_reward
 
 	def learn(self, overfit=False):
+		self.episode += 1.
 		terminal = False
 		observation = self.env.reset()
 		X = np.zeros((2,) + observation.shape)
 		X[0] = observation
 		X[1] = observation
 
+		epsilon = max(self.min_epsilon, self.epsilon - self.episode * self.epsilon_decay)
+
 		experience = []
 		total_reward = 0
 		while terminal == False and total_reward < 200:
 			y = self.model.predict(X)
-			action = np.argmax(y)
+
+			if np.random.rand() <= epsilon:
+				action = np.random.randint(0, len(y))
+			else:
+				action = np.argmax(y)
 
 			observation, reward, terminal, info = self.env.executeAction(action)
 			total_reward += reward
