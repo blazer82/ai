@@ -3,7 +3,7 @@ from environment import Environment
 from model import Model
 import matplotlib.pyplot as plt
 
-model = Model(batch_size=1024, lr=1e-4, load=None)
+model = Model(batch_size=32, lr=1e-3, load=None)
 env = Environment(env_type=Environment.TYPE_PONG)
 agent = Agent(env=env, model=model)
 

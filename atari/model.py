@@ -10,7 +10,7 @@ class Model:
 		self.batch_size = batch_size
 		self.model = Sequential()
 
-		self.model.add(Convolution2D(16, 8, 8,
+		self.model.add(Convolution2D(32, 8, 8,
 			init=init,
 			subsample=(4, 4),
 			dim_ordering='th',
@@ -19,7 +19,7 @@ class Model:
 		self.model.add(BatchNormalization())
 		self.model.add(Activation(activation))
 
-		self.model.add(Convolution2D(32, 4, 4,
+		self.model.add(Convolution2D(64, 4, 4,
 			init=init,
 			subsample=(2, 2),
 			dim_ordering='th',
@@ -27,7 +27,7 @@ class Model:
 		self.model.add(BatchNormalization())
 		self.model.add(Activation(activation))
 
-		self.model.add(Convolution2D(32, 3, 3,
+		self.model.add(Convolution2D(64, 3, 3,
 			init=init,
 			subsample=(1, 1),
 			dim_ordering='th',
@@ -37,7 +37,7 @@ class Model:
 
 		self.model.add(Flatten())
 
-		self.model.add(Dense(256, init=init))
+		self.model.add(Dense(512, init=init))
 		self.model.add(BatchNormalization())
 		self.model.add(Activation(activation))
 
