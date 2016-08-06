@@ -41,7 +41,7 @@ class Agent:
 
 			observation, reward, terminal, info = self.env.executeAction(action)
 
-			experience.append((X.copy(), y.copy(), reward, terminal))
+			experience.append((X.copy(), y, reward, terminal))
 
 			X[0] = X[1]
 			X[1] = observation

@@ -1,6 +1,5 @@
 import numpy as np
 import gym
-from PIL import Image
 
 
 class Environment:
