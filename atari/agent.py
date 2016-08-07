@@ -30,7 +30,7 @@ class Agent:
 
 		return total_reward
 
-	def learn(self, overfit=False, skip_frame=4):
+	def learn(self, overfit=False, skip_frame=2):
 		self.episode += 1.
 		terminal = False
 		observation = self.env.reset()
