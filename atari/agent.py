@@ -30,43 +30,45 @@ class Agent:
 
 		return total_reward
 
-	def learn(self, overfit=False, skip_frame=2):
+	def learn(self, overfit=False, games=1, epochs=1, skip_frame=2):
 		self.episode += 1.
-		terminal = False
-		observation = self.env.reset()
-		X = np.zeros((2,) + observation.shape)
-		X[0] = observation
-		X[1] = observation
-
 		epsilon = max(self.min_epsilon, self.epsilon - self.episode * self.epsilon_decay)
 
 		experience = []
 		total_reward = 0
-		frame = 0
-		action = self.env.env.action_space.sample()
-		while terminal == False and total_reward < 200:
-			frame += 1
 
-			if frame%skip_frame != 0:
-				observation, reward, terminal, info = self.env.executeAction(action)
+		for game in range(1, games + 1):
+			print "Game %d/%d..."%(game, games)
+			terminal = False
+			observation = self.env.reset()
+			X = np.zeros((2,) + observation.shape)
+			X[0] = observation
+			X[1] = observation
+			frame = 0
+			action = self.env.env.action_space.sample()
+			while terminal == False:
+				frame += 1
 
-			if frame%skip_frame == 0 or reward != 0 or terminal:
-				y = self.model.predict(X)
-
-				if frame%skip_frame == 0:
-					if np.random.rand() <= epsilon:
-						action = np.random.randint(0, len(y))
-					else:
-						action = np.argmax(y)
-
+				if frame%skip_frame != 0:
 					observation, reward, terminal, info = self.env.executeAction(action)
 
-				total_reward += reward
+				if frame%skip_frame == 0 or reward != 0 or terminal:
+					y = self.model.predict(X)
 
-				experience.append((X.copy(), y, reward, terminal))
+					if frame%skip_frame == 0:
+						if np.random.rand() <= epsilon:
+							action = np.random.randint(0, len(y))
+						else:
+							action = np.argmax(y)
 
-				X[0] = X[1]
-				X[1] = observation
+						observation, reward, terminal, info = self.env.executeAction(action)
+
+					total_reward += reward
+
+					experience.append((X.copy(), y, reward, terminal))
+
+					X[0] = X[1]
+					X[1] = observation
 
 		nbr_experiences = len(experience)
 		X_t = np.zeros((nbr_experiences,) + experience[0][0].shape)
@@ -98,8 +100,8 @@ class Agent:
 
 
 		while overfit:
-			self.model.learn(X_t, y_t)
+			self.model.learn(X_t, y_t, nb_epoch=epochs)
 
-		history = self.model.learn(X_t, y_t)
+		history = self.model.learn(X_t, y_t, nb_epoch=epochs)
 
-		return total_reward, history.history['loss'][0], np.mean(q), epsilon
+		return total_reward / games, history.history['loss'][0], np.mean(q), epsilon

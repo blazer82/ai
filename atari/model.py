@@ -51,8 +51,8 @@ class Model:
 	def predict(self, X):
 		return self.model.predict(X.reshape((1,) + X.shape))[0]
 
-	def learn(self, X, y):
-		return self.model.fit(X, y, nb_epoch=1, batch_size=self.batch_size, shuffle=True, verbose=1)
+	def learn(self, X, y, nb_epoch=1):
+		return self.model.fit(X, y, nb_epoch=nb_epoch, batch_size=self.batch_size, shuffle=True, verbose=1)
 
 	def save(self, filename):
 		return self.model.save_weights(filename, overwrite=True)
