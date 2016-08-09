@@ -65,7 +65,7 @@ class Agent:
 
 					total_reward += reward
 
-					experience.append((X.copy(), y, reward, terminal))
+					experience.append((X.copy(), y, action, reward, terminal))
 
 					X[0] = X[1]
 					X[1] = observation
@@ -78,7 +78,7 @@ class Agent:
 		distance = 0
 		mod = 0.
 		for i in reversed(range(0, nbr_experiences)):
-			X, y, reward, terminal = experience[i]
+			X, y, action, reward, terminal = experience[i]
 
 			X_t[i] = X
 			y_t[i] = y
@@ -93,7 +93,6 @@ class Agent:
 
 			mod *= .99**distance
 
-			action = np.argmax(y_t[i])
 			y_t[i, action] = mod
 			y_t[i] -= np.mean(y_t[i])
 			y_t[i] /= np.std(y_t[i])
