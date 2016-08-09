@@ -3,9 +3,9 @@ from environment import Environment
 from model import Model
 import matplotlib.pyplot as plt
 
-model = Model(batch_size=16, lr=1e-4, load=None)
+model = Model(batch_size=512, lr=1e-4, load=None)
 env = Environment(env_type=Environment.TYPE_PONG, render=False)
-agent = Agent(env=env, model=model, epsilon_decay=.1)
+agent = Agent(env=env, model=model, epsilon_decay=1e-2, min_epsilon=.25)
 
 episode = 0
 
@@ -15,7 +15,7 @@ qs = []
 eps = []
 while True:
 	episode += 1
-	score, loss, mean_q, epsilon = agent.learn(overfit=False, games=10, epochs=4)
+	score, loss, mean_q, epsilon = agent.learn(overfit=False, games=10, epochs=1)
 
 	print "#%d score: %d"%(episode, score)
 

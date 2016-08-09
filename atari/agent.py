@@ -82,16 +82,11 @@ class Agent:
 
 			X_t[i] = X
 			y_t[i] = y
-			q[i] = max(y)
-			# print(y)
 
-			if reward == 0:
-				distance += 1
+			if reward != 0:
+				mod = reward + 0.
 			else:
-				distance = 0
-				mod = reward
-
-			mod *= .99**distance
+				mod *= .99
 
 			y_t[i, action] = mod
 			y_t[i] -= np.mean(y_t[i])
