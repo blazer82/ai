@@ -89,7 +89,6 @@ class Agent:
 				mod *= .99
 
 			y_t[i, action] = mod
-			y_t[i] -= np.mean(y_t[i])
 
 
 		while overfit:
