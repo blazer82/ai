@@ -45,7 +45,7 @@ class Agent:
 			X[0] = observation
 			X[1] = observation
 			frame = 0
-			action = self.env.env.action_space.sample()
+			action = np.random.randint(0, 2)
 			while terminal == False:
 				frame += 1
 
@@ -75,13 +75,13 @@ class Agent:
 		y_t = np.zeros((nbr_experiences,) + experience[0][1].shape)
 		q = np.zeros(nbr_experiences)
 
-		distance = 0
 		mod = 0.
 		for i in reversed(range(0, nbr_experiences)):
 			X, y, action, reward, terminal = experience[i]
 
 			X_t[i] = X
 			y_t[i] = y
+			q[i] = max(y)
 
 			if reward != 0:
 				mod = reward + 0.
@@ -90,7 +90,6 @@ class Agent:
 
 			y_t[i, action] = mod
 			y_t[i] -= np.mean(y_t[i])
-			y_t[i] /= np.std(y_t[i])
 
 
 		while overfit:

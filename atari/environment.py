@@ -28,6 +28,8 @@ class Environment:
 		if self.must_be_reset:
 			self.reset()
 
+		action += 2
+
 		observation, reward, terminal, info = self.env.step(action)
 
 		if self.render:

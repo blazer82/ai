@@ -41,7 +41,7 @@ class Model:
 		self.model.add(BatchNormalization())
 		self.model.add(Activation(activation))
 
-		self.model.add(Dense(6, init=init))
+		self.model.add(Dense(2, init=init))
 
 		if load != None:
 			self.model.load_weights(load)
