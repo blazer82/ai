@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 model = Model(batch_size=512, lr=1e-4, load=None)
 env = Environment(env_type=Environment.TYPE_PONG, render=False)
-agent = Agent(env=env, model=model, epsilon_decay=1e-2, min_epsilon=.25)
+agent = Agent(env=env, model=model, epsilon_decay=1e-3, min_epsilon=.2)
 
 episode = 0
 
@@ -17,7 +17,7 @@ while True:
 	episode += 1
 	print "Episode #%d"%(episode)
 	warmup = 50 if episode == 1 else 0
-	score, loss, mean_q, epsilon = agent.learn(overfit=False, games=5, epochs=1, warmup=warmup)
+	score, loss, mean_q, epsilon = agent.learn(overfit=False, games=5, epochs=2, warmup=warmup)
 
 	model.save('model.h5')
 
