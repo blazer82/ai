@@ -1,4 +1,5 @@
 import numpy as np
+from memory import Memory
 
 
 class Agent:
@@ -9,6 +10,8 @@ class Agent:
 		self.min_epsilon = min_epsilon
 		self.epsilon_decay = epsilon_decay
 		self.episode = 0
+		self.positiveMemory = Memory(model=self.model)
+		self.negativeMemory = Memory(model=self.model)
 
 	def play(self):
 		terminal = False
@@ -34,7 +37,6 @@ class Agent:
 		self.episode += 1.
 		epsilon = max(self.min_epsilon, self.epsilon - self.episode * self.epsilon_decay)
 
-		experience = []
 		total_reward = 0
 
 		for game in range(1, games + 1):
@@ -46,6 +48,7 @@ class Agent:
 			X[1] = observation
 			frame = 0
 			action = np.random.randint(0, 2)
+			episode = []
 			while terminal == False:
 				frame += 1
 
@@ -65,35 +68,35 @@ class Agent:
 
 					total_reward += reward
 
-					experience.append((X.copy(), y, action, reward, terminal))
+					episode.append((X.copy(), y, action, reward, terminal))
+
+					if reward == 1:
+						self.positiveMemory.add(episode, positive=True)
+						episode = []
+					if reward == -1:
+						self.negativeMemory.add(episode, positive=False)
+						episode = []
 
 					X[0] = X[1]
 					X[1] = observation
 
-		nbr_experiences = len(experience)
-		X_t = np.zeros((nbr_experiences,) + experience[0][0].shape)
-		y_t = np.zeros((nbr_experiences,) + experience[0][1].shape)
-		q = np.zeros(nbr_experiences)
+		X_pos, y_pos = self.positiveMemory.sample(nbr_positive=games*21)
+		X_neg, y_neg = self.negativeMemory.sample(nbr_negative=games*21)
 
-		mod = 0.
-		for i in reversed(range(0, nbr_experiences)):
-			X, y, action, reward, terminal = experience[i]
-
-			X_t[i] = X
-			y_t[i] = y
-			q[i] = max(y)
-
-			if reward != 0:
-				mod = reward + 0.
-			else:
-				mod *= .99
-
-			y_t[i, action] = mod
-
+		if not X_pos is None:
+			print "Sample %d positive and %d negative frames"%(len(y_pos), len(y_neg))
+			X_t = np.concatenate((X_pos, X_neg))
+			y_t = np.concatenate((y_pos, y_neg))
+			np.random.shuffle(X_t)
+			np.random.shuffle(y_t)
+		else:
+			print "Sample %d negative frames"%(len(y_neg))
+			X_t = X_neg
+			y_t = y_neg
 
 		while overfit:
 			self.model.learn(X_t, y_t, nb_epoch=epochs)
 
 		history = self.model.learn(X_t, y_t, nb_epoch=epochs)
 
-		return total_reward / games, history.history['loss'][0], np.mean(q), epsilon
+		return total_reward / games, history.history['loss'][0], 0., epsilon
