@@ -10,8 +10,8 @@ class Agent:
 		self.min_epsilon = min_epsilon
 		self.epsilon_decay = epsilon_decay
 		self.episode = 0
-		self.positiveMemory = Memory(model=self.model, episode_max_size=30)
-		self.negativeMemory = Memory(model=self.model, episode_max_size=20)
+		self.positiveMemory = Memory(model=self.model, episode_max_size=50)
+		self.negativeMemory = Memory(model=self.model, episode_max_size=25)
 
 	def play(self):
 		terminal = False
@@ -38,6 +38,7 @@ class Agent:
 		epsilon = max(self.min_epsilon, self.epsilon - self.episode * self.epsilon_decay)
 
 		total_reward = 0
+		qs = []
 
 		for game in range(1, games + 1):
 			print "Game %d/%d..."%(game, games)
@@ -57,6 +58,7 @@ class Agent:
 
 				if frame%skip_frame == 0 or reward != 0 or terminal:
 					y = self.model.predict(X)
+					qs.append(max(y))
 
 					if frame%skip_frame == 0:
 						if np.random.rand() <= epsilon:
@@ -80,9 +82,9 @@ class Agent:
 					X[0] = X[1]
 					X[1] = observation
 
-		print "Score %f"%(total_reward / games)
+		print "Score %.1f"%(total_reward / games)
 
-		X_pos, y_pos = self.positiveMemory.sample(nbr_positive=games*10)
+		X_pos, y_pos = self.positiveMemory.sample(nbr_positive=games*5)
 		X_neg, y_neg = self.negativeMemory.sample(nbr_negative=games*10)
 
 		if not X_pos is None:
@@ -99,4 +101,4 @@ class Agent:
 
 		history = self.model.learn(X_t, y_t, nb_epoch=epochs)
 
-		return total_reward / games, history.history['loss'][0], 0., epsilon
+		return total_reward / games, history.history['loss'][0], np.mean(qs), epsilon
