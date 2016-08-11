@@ -10,8 +10,8 @@ class Agent:
 		self.min_epsilon = min_epsilon
 		self.epsilon_decay = epsilon_decay
 		self.episode = 0
-		self.positiveMemory = Memory(model=self.model)
-		self.negativeMemory = Memory(model=self.model)
+		self.positiveMemory = Memory(model=self.model, episode_max_size=30)
+		self.negativeMemory = Memory(model=self.model, episode_max_size=20)
 
 	def play(self):
 		terminal = False
