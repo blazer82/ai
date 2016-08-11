@@ -15,9 +15,8 @@ qs = []
 eps = []
 while True:
 	episode += 1
+	print "Episode #%d"%(episode)
 	score, loss, mean_q, epsilon = agent.learn(overfit=False, games=10, epochs=1)
-
-	print "#%d score: %d"%(episode, score)
 
 	model.save('model.h5')
 

@@ -80,17 +80,17 @@ class Agent:
 					X[0] = X[1]
 					X[1] = observation
 
+		print "Score %f"%(total_reward / games)
+
 		X_pos, y_pos = self.positiveMemory.sample(nbr_positive=games*21)
 		X_neg, y_neg = self.negativeMemory.sample(nbr_negative=games*21)
 
 		if not X_pos is None:
-			print "Sample %d positive and %d negative frames"%(len(y_pos), len(y_neg))
+			print "Sample %d positive and %d negative memories"%(len(y_pos), len(y_neg))
 			X_t = np.concatenate((X_pos, X_neg))
 			y_t = np.concatenate((y_pos, y_neg))
-			np.random.shuffle(X_t)
-			np.random.shuffle(y_t)
 		else:
-			print "Sample %d negative frames"%(len(y_neg))
+			print "Sample %d negative memories"%(len(y_neg))
 			X_t = X_neg
 			y_t = y_neg
 

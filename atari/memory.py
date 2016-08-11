@@ -2,7 +2,7 @@ import numpy as np
 
 
 class Memory:
-	def __init__(self, model, size=100000):
+	def __init__(self, model, size=1000):
 		self.size = size
 		self.model = model
 		self.memory = []
