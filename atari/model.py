@@ -15,7 +15,7 @@ class Model:
 			subsample=(4, 4),
 			dim_ordering='th',
 			border_mode='valid',
-			input_shape=(2, 80, 74)))
+			input_shape=(4, 80, 74)))
 		self.model.add(BatchNormalization())
 		self.model.add(Activation(activation))
 

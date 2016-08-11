@@ -16,7 +16,8 @@ eps = []
 while True:
 	episode += 1
 	print "Episode #%d"%(episode)
-	score, loss, mean_q, epsilon = agent.learn(overfit=False, games=10, epochs=1)
+	warmup = 50 if episode == 1 else 0
+	score, loss, mean_q, epsilon = agent.learn(overfit=False, games=5, epochs=1, warmup=warmup)
 
 	model.save('model.h5')
 

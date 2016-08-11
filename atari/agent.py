@@ -10,8 +10,8 @@ class Agent:
 		self.min_epsilon = min_epsilon
 		self.epsilon_decay = epsilon_decay
 		self.episode = 0
-		self.positiveMemory = Memory(model=self.model, episode_max_size=50)
-		self.negativeMemory = Memory(model=self.model, episode_max_size=25)
+		self.positiveMemory = Memory(model=self.model, episode_max_size=25)
+		self.negativeMemory = Memory(model=self.model, episode_max_size=20)
 
 	def play(self):
 		terminal = False
@@ -33,34 +33,38 @@ class Agent:
 
 		return total_reward
 
-	def learn(self, overfit=False, games=1, epochs=1, skip_frame=2):
+	def learn(self, overfit=False, games=1, epochs=1, warmup=0, skip_frames=4):
 		self.episode += 1.
 		epsilon = max(self.min_epsilon, self.epsilon - self.episode * self.epsilon_decay)
 
 		total_reward = 0
 		qs = []
 
+		if warmup > 0:
+			print "Adding %d warmup games"%(warmup)
+			games += warmup
+
 		for game in range(1, games + 1):
 			print "Game %d/%d..."%(game, games)
 			terminal = False
 			observation = self.env.reset()
-			X = np.zeros((2,) + observation.shape)
-			X[0] = observation
-			X[1] = observation
+			framebuffer = np.zeros((skip_frames,) + observation.shape)
+			framebuffer[-1] = observation
 			frame = 0
 			action = np.random.randint(0, 2)
 			episode = []
 			while terminal == False:
 				frame += 1
 
-				if frame%skip_frame != 0:
+				if frame%skip_frames != 0:
 					observation, reward, terminal, info = self.env.executeAction(action)
 
-				if frame%skip_frame == 0 or reward != 0 or terminal:
+				if frame%skip_frames == 0 or reward != 0 or terminal:
+					X = framebuffer.copy()
 					y = self.model.predict(X)
 					qs.append(max(y))
 
-					if frame%skip_frame == 0:
+					if frame%skip_frames == 0:
 						if np.random.rand() <= epsilon:
 							action = np.random.randint(0, len(y))
 						else:
@@ -70,7 +74,7 @@ class Agent:
 
 					total_reward += reward
 
-					episode.append((X.copy(), y, action, reward, terminal))
+					episode.append((X, y, action, reward, terminal))
 
 					if reward == 1:
 						self.positiveMemory.add(episode, positive=True)
@@ -79,12 +83,12 @@ class Agent:
 						self.negativeMemory.add(episode, positive=False)
 						episode = []
 
-					X[0] = X[1]
-					X[1] = observation
+				framebuffer[0:skip_frames-1] = framebuffer[1:]
+				framebuffer[-1] = observation
 
 		print "Score %.1f"%(total_reward / games)
 
-		X_pos, y_pos = self.positiveMemory.sample(nbr_positive=games*5)
+		X_pos, y_pos = self.positiveMemory.sample(nbr_positive=games*10)
 		X_neg, y_neg = self.negativeMemory.sample(nbr_negative=games*10)
 
 		if not X_pos is None:
