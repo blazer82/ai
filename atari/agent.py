@@ -10,8 +10,8 @@ class Agent:
 		self.min_epsilon = min_epsilon
 		self.epsilon_decay = epsilon_decay
 		self.episode = 0
-		self.positiveMemory = Memory(model=self.model)
-		self.negativeMemory = Memory(model=self.model)
+		self.positiveMemory = Memory(model=self.model, size=10)
+		self.negativeMemory = Memory(model=self.model, size=20)
 
 	def play(self):
 		terminal = False
@@ -33,7 +33,7 @@ class Agent:
 
 		return total_reward
 
-	def learn(self, overfit=False, games=1, epochs=1, warmup=0, skip_frames=4):
+	def learn(self, overfit=False, games=1, warmup=0, skip_frames=4):
 		self.episode += 1.
 		epsilon = max(self.min_epsilon, self.epsilon - self.episode * self.epsilon_decay)
 
@@ -101,8 +101,9 @@ class Agent:
 			y_t = y_neg
 
 		while overfit:
-			self.model.learn(X_t, y_t, nb_epoch=epochs)
+			loss = self.model.learn(X_t, y_t)
+			print "Loss: %f"%(loss)
 
-		history = self.model.learn(X_t, y_t, nb_epoch=epochs)
+		loss = self.model.learn(X_t, y_t)
 
-		return total_reward / games, history.history['loss'][0], np.mean(qs), epsilon
+		return total_reward / games, loss, np.mean(qs), epsilon

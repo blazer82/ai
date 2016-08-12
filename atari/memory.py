@@ -46,9 +46,7 @@ class Memory:
 				else:
 					mod *= .99
 
-				sample[1][action] = mod
-				sample[1] -= np.mean(sample[1])
-				sample[1] /= np.std(sample[1])
+				sample[1] = y * mod
 				X_t.append(sample[0])
 				y_t.append(sample[1])
 

@@ -6,8 +6,7 @@ from keras.optimizers import RMSprop
 
 
 class Model:
-	def __init__(self, init='normal', activation='relu', batch_size=32, lr=1e-3, load=None):
-		self.batch_size = batch_size
+	def __init__(self, init='normal', activation='relu', lr=1e-3, load=None):
 		self.model = Sequential()
 
 		self.model.add(Convolution2D(32, 8, 8,
@@ -51,8 +50,8 @@ class Model:
 	def predict(self, X):
 		return self.model.predict(X.reshape((1,) + X.shape))[0]
 
-	def learn(self, X, y, nb_epoch=1):
-		return self.model.fit(X, y, nb_epoch=nb_epoch, batch_size=self.batch_size, shuffle=True, verbose=1)
+	def learn(self, X, y):
+		return self.model.train_on_batch(X, y)
 
 	def save(self, filename):
 		return self.model.save_weights(filename, overwrite=True)
