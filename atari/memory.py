@@ -2,7 +2,7 @@ import numpy as np
 
 
 class Memory:
-	def __init__(self, model, size=1000, episode_max_size=100):
+	def __init__(self, model, size=100, episode_max_size=100):
 		self.size = size
 		self.episode_max_size = episode_max_size
 		self.model = model

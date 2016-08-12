@@ -15,10 +15,10 @@ class Environment:
 		grey = np.average(observation, 2)
 		img = Image.fromarray(grey)
 		img.thumbnail((110, 110), Image.NEAREST) # new shape (110, 84)
-		img = img.crop((5, 25, 79, 105)) # new shape (80, 74)
+		img = img.crop((5, 17, 79, 107)) # new shape (90, 74)
 		x_new = np.asarray(img, dtype=np.float32).copy()
-		x_new -= 128
-		x_new /= 128
+		x_new -= 128.
+		x_new /= np.mean(x_new)
 		return x_new
 
 	def reset(self):
