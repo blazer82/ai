@@ -6,7 +6,7 @@ from keras.optimizers import RMSprop
 
 
 class Model:
-	def __init__(self, init='glorot_uniform', activation='relu', batch_size=32, lr=1e-3, load=None):
+	def __init__(self, init='normal', activation='relu', batch_size=32, lr=1e-3, load=None):
 		self.batch_size = batch_size
 		self.model = Sequential()
 

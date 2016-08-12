@@ -10,8 +10,8 @@ class Agent:
 		self.min_epsilon = min_epsilon
 		self.epsilon_decay = epsilon_decay
 		self.episode = 0
-		self.positiveMemory = Memory(model=self.model, episode_max_size=25)
-		self.negativeMemory = Memory(model=self.model, episode_max_size=20)
+		self.positiveMemory = Memory(model=self.model, episode_max_size=15)
+		self.negativeMemory = Memory(model=self.model, episode_max_size=10)
 
 	def play(self):
 		terminal = False
@@ -88,8 +88,8 @@ class Agent:
 
 		print "Score %.1f"%(total_reward / games)
 
-		X_pos, y_pos = self.positiveMemory.sample(nbr_positive=(games-warmup)*10)
-		X_neg, y_neg = self.negativeMemory.sample(nbr_negative=(games-warmup)*10)
+		X_pos, y_pos = self.positiveMemory.sample(nbr_positive=(games-warmup)*15)
+		X_neg, y_neg = self.negativeMemory.sample(nbr_negative=(games-warmup)*20)
 
 		if not X_pos is None:
 			print "Sample %d positive and %d negative memories"%(len(y_pos), len(y_neg))
