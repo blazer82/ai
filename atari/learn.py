@@ -4,7 +4,7 @@ from model import Model
 import matplotlib.pyplot as plt
 
 model = Model(batch_size=32, lr=1e-4, load=None)
-env = Environment(env_type=Environment.TYPE_PONG, render=True)
+env = Environment(env_type=Environment.TYPE_PONG, render=False)
 agent = Agent(env=env, model=model, epsilon_decay=1e-3, min_epsilon=.1)
 
 episode = 0
