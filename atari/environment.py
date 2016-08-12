@@ -18,7 +18,7 @@ class Environment:
 		img = img.crop((5, 17, 79, 107)) # new shape (90, 74)
 		x_new = np.asarray(img, dtype=np.float32).copy()
 		x_new -= 128.
-		x_new /= np.mean(x_new)
+		x_new /= 128.
 		return x_new
 
 	def reset(self):
