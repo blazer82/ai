@@ -88,7 +88,7 @@ class Agent:
 
 		print "Score %.1f"%(total_reward / games)
 
-		X_pos, y_pos = self.positiveMemory.sample(nbr_positive=(games-warmup)*20)
+		X_pos, y_pos = self.positiveMemory.sample(nbr_positive=(games-warmup)*10)
 		X_neg, y_neg = self.negativeMemory.sample(nbr_negative=(games-warmup)*20)
 
 		if not X_pos is None:
