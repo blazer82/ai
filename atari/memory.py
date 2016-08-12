@@ -39,7 +39,7 @@ class Memory:
 
 			for j in reversed(range(0, len(episode))):
 				(X, y, action, reward, terminal) = episode[j]
-				sample = [X, self.model.predict(X)]
+				sample = [X, np.zeros_like(y)]
 
 				if reward != 0:
 					mod = 1. if positive else -1.
@@ -47,6 +47,8 @@ class Memory:
 					mod *= .99
 
 				sample[1][action] = mod
+				sample[1] -= np.mean(sample[1])
+				sample[1] /= np.std(sample[1])
 				X_t.append(sample[0])
 				y_t.append(sample[1])
 
