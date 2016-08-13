@@ -10,8 +10,8 @@ class Agent:
 		self.min_epsilon = min_epsilon
 		self.epsilon_decay = epsilon_decay
 		self.episode = 0
-		self.positiveMemory = Memory(model=self.model)
-		self.negativeMemory = Memory(model=self.model)
+		self.positiveMemory = Memory(model=self.model, episode_max_size=20)
+		self.negativeMemory = Memory(model=self.model, episode_max_size=10)
 
 	def play(self):
 		terminal = False
@@ -39,6 +39,7 @@ class Agent:
 
 		total_reward = 0
 		qs = []
+		predictions = None
 
 		if warmup > 0:
 			print "Adding %d warmup games"%(warmup)
@@ -63,6 +64,9 @@ class Agent:
 					X = framebuffer.copy()
 					y = self.model.predict(X)
 					qs.append(max(y))
+					if predictions is None:
+						predictions = np.zeros_like(y)
+					predictions[np.argmax(y)] += 1
 
 					if frame%skip_frames == 0:
 						if np.random.rand() <= epsilon:
@@ -88,7 +92,7 @@ class Agent:
 
 		print "Score %.1f"%(total_reward / games)
 
-		X_pos, y_pos = self.positiveMemory.sample(nbr_positive=(games-warmup)*50)
+		X_pos, y_pos = self.positiveMemory.sample(nbr_positive=(games-warmup)*25)
 		X_neg, y_neg = self.negativeMemory.sample(nbr_negative=(games-warmup)*100)
 
 		if not X_pos is None:
@@ -106,4 +110,4 @@ class Agent:
 
 		loss = self.model.learn(X_t, y_t)
 
-		return total_reward / games, loss, np.mean(qs), epsilon
+		return total_reward / games, loss, np.mean(qs), epsilon, predictions

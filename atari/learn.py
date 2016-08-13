@@ -17,9 +17,10 @@ while True:
 	episode += 1
 	print "Episode #%d"%(episode)
 	warmup = 10 if episode == 1 else 0
-	score, loss, mean_q, epsilon = agent.learn(overfit=False, games=1, warmup=warmup)
+	score, loss, mean_q, epsilon, predictions = agent.learn(overfit=False, games=1, warmup=warmup)
 
 	print "Loss %f, mean q %f"%(loss, mean_q)
+	print "Predictions 0: %d%%, 1: %d%%"%(predictions[0]/sum(predictions)*100, predictions[1]/sum(predictions)*100)
 
 	model.save('model.h5')
 

@@ -24,6 +24,7 @@ class Memory:
 		total = min(nbr_negative + nbr_positive, len_memory)
 		X_t = []
 		y_t = []
+		mods = []
 		if total == 0: return None, None
 		for i, idx in enumerate(np.random.randint(0, len_memory, size=total)):
 			episode = self.memory[idx][0]
@@ -49,8 +50,12 @@ class Memory:
 				if action != np.argmax(sample[1]):
 					mod *= -1.
 
-				sample[1] *= mod
+				mods.append(mod)
 				X_t.append(sample[0])
 				y_t.append(sample[1])
+
+		mods -= np.mean(mods)
+		mods /= np.std(mods)
+		y_t *= mods[:, np.newaxis]
 
 		return np.asarray(X_t), np.asarray(y_t)
