@@ -78,6 +78,7 @@ class Agent:
 
 					total_reward += reward
 
+					y[action] = 1. # encourage current action, for now
 					episode.append((X, y, action, reward, terminal))
 
 					if reward == 1:
