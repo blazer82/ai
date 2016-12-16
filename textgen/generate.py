@@ -52,9 +52,9 @@ X = X / float(n_vocab)
 y = np_utils.to_categorical(dataY)
 # define the LSTM model
 model = Sequential()
-model.add(Convolution1D(32, 3, input_shape=(X.shape[1], X.shape[2])))
+model.add(Convolution1D(64, 3, input_shape=(X.shape[1], X.shape[2])))
 model.add(MaxPooling1D(pool_length=2))
-model.add(LSTM(128))
+model.add(LSTM(256))
 model.add(Dropout(0.2))
 model.add(Dense(y.shape[1], activation='softmax'))
 # load the network weights
