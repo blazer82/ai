@@ -1,11 +1,13 @@
 from agent import Agent
 from environment import Environment
 from model import Model
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 model = Model(lr=1e-4, load=None)
 env = Environment(env_type=Environment.TYPE_PONG, render=False)
-agent = Agent(env=env, model=model, epsilon_decay=1e-2, min_epsilon=.1)
+agent = Agent(env=env, model=model, epsilon_decay=1e-4, min_epsilon=.1)
 
 episode = 0
 
@@ -46,5 +48,4 @@ while True:
 	s_q.plot(range(0, len(qs)), qs, 'b-')
 	s_eps.plot(range(0, len(eps)), eps, 'b-')
 
-	plt.show(block=False)
 	plt.savefig('plot.png')
