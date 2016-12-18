@@ -1,0 +1,23 @@
+python generate.py weights-improvement-182-1.3270.hdf5 
+Using TensorFlow backend.
+Total Characters:  154335
+Total Vocab:  30
+Total Sentences:  1635
+Total Patterns:  148265
+Seed:
+"                                                                                                                                          he  "
+said to the mock turtle said the mock turtle said the mock turtle said to herself as she could the court but it was the caterpillar took the
+Done.
+
+
+python generate.py weights-improvement-198-1.3184.hdf5 
+Using TensorFlow backend.
+Total Characters:  154335
+Total Vocab:  30
+Total Sentences:  1635
+Total Patterns:  148265
+Seed:
+" oice and i hadnt begun my teanot above a week or soand what with the breadandbutter getting so thinand the twinkling of the tea the twinklin "
+g and the trial and the cromsing a little door and the thing and the rueen who was a lou voice of the trees and then the cank and the baby w
+Done.
+

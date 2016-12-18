@@ -1,0 +1,23 @@
+python generate.py weights-improvement-60-1.1882.hdf5 
+Using TensorFlow backend.
+Total Characters:  154335
+Total Vocab:  30
+Total Sentences:  1635
+Total Patterns:  148265
+Seed:
+"                                                                                                                  whoever lives there thought "
+ alice it was iivtiig to the pors of tor iad the dook that iad been the was b little bool hartiny and the went on taying to herself in a gre
+Done.
+
+
+python generate.py 476d3091fb1c2902c2a7a01bb050233fc72cf94d/weights-improvement-60-1.1882.hdf5 
+Using TensorFlow backend.
+Total Characters:  154335
+Total Vocab:  30
+Total Sentences:  1635
+Total Patterns:  148265
+Seed:
+"                                                                   in another moment down went alice after it never once considering how in t "
+he words wo be dootie to ger it when and all tornd abco and said to alice bnu the went on tas and wou mnow whth a little doass wo teee ther 
+Done.
+

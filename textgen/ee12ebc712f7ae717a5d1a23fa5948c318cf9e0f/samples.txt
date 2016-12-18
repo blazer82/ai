@@ -1,0 +1,23 @@
+python generate.py weights-improvement-81-1.6527.hdf5 
+Using TensorFlow backend.
+Total Characters:  154335
+Total Vocab:  30
+Total Sentences:  1635
+Total Patterns:  148265
+Seed:
+" there was not a moment to be lost away went alice like the wind and was just in time to hear it say as it turned a corner oh my ears and whi "
+n the that the was to tee the hanchn and a gows her and the patch had get said the krct the was not a little forn the darerpillar so seat th
+Done.
+
+
+python generate.py weights-improvement-171-1.6297.hdf5 
+Using TensorFlow backend.
+Total Characters:  154335
+Total Vocab:  30
+Total Sentences:  1635
+Total Patterns:  148265
+Seed:
+" te pale with passion alice thought and it said in a low trembling voice let us get to the shore and then ill tell you my history and youll u "
+he losse and the said to herself and the that the dortahe and the sabbit oot the caterpilg the hoot and the soodnres and the fooroe of the s
+Done.
+
