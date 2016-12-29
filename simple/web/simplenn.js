@@ -43,7 +43,6 @@ function step(steps) {
 		w0 = w0.add(l0.transpose().dot(l1_delta))
 	}
 
-	console.log(l1)
 	render()
 }
 
