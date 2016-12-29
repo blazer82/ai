@@ -9,8 +9,13 @@ function sigmoid(x, deriv) {
 // Initialize X, Y and weights
 X = nj.zeros([4,3])
 Y = nj.zeros([4,1])
+l0_w0 = nj.zeros([4,1])
 y = nj.zeros([4,1])
 w0 = nj.zeros([3,1])
+
+// Initialize graph
+graph = null
+points = []
 
 // Initialize with real values
 function init() {
@@ -23,9 +28,8 @@ function init() {
 
 	Y = nj.array([[0,0,1,1]]).transpose()
 
-	y = nj.zeros([4,1])
-
 	w0 = nj.random([3,1]).subtract(1).multiply(2)
+	predict()
 	render()
 }
 
@@ -34,7 +38,8 @@ function step(steps) {
 
 	for (var i = 0; i < steps; i++) {
 		l0 = X
-		l1 = y = sigmoid(l0.dot(w0))
+		l0_w0 = l0.dot(w0)
+		l1 = y = sigmoid(l0_w0)
 
 		l1_error = Y.subtract(l1)
 
@@ -48,7 +53,8 @@ function step(steps) {
 
 function predict() {
 	l0 = X
-	y = sigmoid(l0.dot(w0))
+	l0_w0 = l0.dot(w0)
+	l1 = y = sigmoid(l0_w0)
 	render()
 }
 
@@ -64,8 +70,20 @@ function render() {
 	renderMatrix(Y, 'Y')
 	renderMatrix(w0, 'w0')
 	renderMatrix(y, 'y')
+
+	function renderPoint(n) {
+		points[n].moveTo([l0_w0.get(n, 0), y.get(n, 0)], 100)
+	}
+	for (var p = 0; p < X.shape[0]; p++) {
+		renderPoint(p)
+	}
 }
 
 $(function() {
+	graph = JXG.JSXGraph.initBoard('box', {boundingbox: [-6, 1, 6, 0], axis:true})
+	graph.create('functiongraph', [function(x) { return 1/(1+Math.exp(-x)) }])
+	for (var p = 0; p < X.shape[0]; p++) {
+		points.push(graph.create('point', [0,0.5]))
+	}
 	init()
 })
