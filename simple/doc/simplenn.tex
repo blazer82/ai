@@ -131,7 +131,7 @@ Which ultimately means:
 
 \newpage
 
-\section{Example calculation}
+\section{Calculation example}
 \subsection{Initialize}
 Set $X \in \mathbb{R}^{n \times 3}$
 \begin{equation}
@@ -227,7 +227,7 @@ Update weight $w$
 \end{equation}
 
 \subsection{Another prediction}
-Another forward pass gets is closer to the desired output:
+Another forward pass gets us closer to the desired output:
 \begin{equation}
 	y =
 	\begin{bmatrix}
@@ -240,4 +240,106 @@ Another forward pass gets is closer to the desired output:
 		\vdots
 	\end{bmatrix}
 \end{equation}
+
+\newpage
+
+\section{Multiple layers}
+When dealing with non-linear problems we would need to insert at least one additional layer between the input and the output layer.
+In our example where $X$ is of shape $\mathbb{R}^{n \times 3}$ and Y is of shape $\mathbb{R}^{n \times 1}$ out weight matrices need to satisfy the following requirements:
+\begin{equation}
+	w^{(1)} \in \mathbb{R}^{3 \times m},
+	w^{(2)} \in \mathbb{R}^{m \times 1}
+\end{equation}
+
+\subsection{Hidden layer}
+Let $m=4$:
+\begin{equation}
+	w^{(1)} =
+	\begin{bmatrix}
+		w^{(1)}_{11} & w^{(1)}_{12} & w^{(1)}_{13} & w^{(1)}_{14} \\
+		w^{(1)}_{21} & w^{(1)}_{22} & w^{(1)}_{23} & w^{(1)}_{24} \\
+		w^{(1)}_{31} & w^{(1)}_{32} & w^{(1)}_{33} & w^{(1)}_{34}
+	\end{bmatrix},
+	w^{(2)} =
+	\begin{bmatrix}
+		w^{(2)}_{1} \\
+		w^{(2)}_{2} \\
+		w^{(2)}_{3} \\
+		w^{(2)}_{4}
+	\end{bmatrix}
+\end{equation}
+
+\subsection{Forward propagation}
+Our forward propagation is now a set of linear transformations. One for the hidden layer:
+\begin{equation}
+	h = sigmoid(Xw^{(1)})
+\end{equation}
+And one for the output layer:
+\begin{equation}
+	y = sigmoid(hw^{(2)})
+\end{equation}
+The whole forward pass looks like this:
+\begin{equation}
+	y = sigmoid(sigmoid(
+	\begin{bmatrix}
+		0 & 0 & 1 \\
+		0 & 1 & 1 \\
+		1 & 0 & 1 \\
+		1 & 1 & 1
+	\end{bmatrix}
+	\begin{bmatrix}
+		w^{(1)}_{11} & w^{(1)}_{12} & w^{(1)}_{13} & w^{(1)}_{14} \\
+		w^{(1)}_{21} & w^{(1)}_{22} & w^{(1)}_{23} & w^{(1)}_{24} \\
+		w^{(1)}_{31} & w^{(1)}_{32} & w^{(1)}_{33} & w^{(1)}_{34}
+	\end{bmatrix}
+	)
+	\begin{bmatrix}
+		w^{(2)}_{1} \\
+		w^{(2)}_{2} \\
+		w^{(2)}_{3} \\
+		w^{(2)}_{4}
+	\end{bmatrix}
+	)
+\end{equation}
+
+\newpage
+
+\subsection{Loss and back propagation}
+\subsubsection{Delta}
+$\Delta{y}$ keeps unchanged:
+\begin{equation}
+	\Delta{y} = (Y-y)(y-y^2)
+\end{equation}
+We now need to establish a loss $\phi_h \in \mathbb{R}^{4 \times 4}$ for the hidden layer:
+\begin{equation}
+	\phi_h = \Delta{y}w^{(2)T}
+\end{equation}
+Which expands to:
+\begin{equation}
+	\phi_h =
+	\begin{bmatrix}
+		\Delta{y_1} \\
+		\Delta{y_2} \\
+		\Delta{y_3} \\
+		\Delta{y_4}
+	\end{bmatrix}
+	\begin{bmatrix}
+		w^{(2)}_{1} & w^{(2)}_{2} & w^{(2)}_{3} & w^{(2)}_{4}
+	\end{bmatrix}
+\end{equation}
+There's a new delta $\Delta{h} \in \mathbb{R}^{4 \times 4}$ for our hidden layer:
+\begin{equation}
+	\Delta{h} = \phi_h (h-h^2)
+\end{equation}
+
+\subsubsection{Weight update}
+$w^{(1)}$ is updated as follows:
+\begin{equation}
+	w^{(1)} = X^T\Delta{h}
+\end{equation}
+And $w^{(2)}$:
+\begin{equation}
+	w^{(2)} = h^T\Delta{y}
+\end{equation}
+
 \end{document}
