@@ -1,0 +1,132 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[english]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\author{Raphael St\"abler}
+\title{Simple Neural Network}
+\date{\today{}}
+
+\begin{document}
+
+\begin{titlepage}
+	\maketitle
+	\thispagestyle{empty}
+\end{titlepage}
+
+\newpage
+
+\section{Definition}
+\subsection{Training examples}
+We use the following $4 \times 3$ matrix as input for our training:
+\begin{equation}
+	X =
+	\begin{bmatrix}
+		0 & 0 & 1 \\
+		0 & 1 & 1 \\
+		1 & 0 & 1 \\
+		1 & 1 & 1
+	\end{bmatrix}
+\end{equation}	
+While this $4 \times 1$ matrix defines the desired outputs:
+\begin{equation}
+	Y =
+	\begin{bmatrix}
+		0 \\
+		0 \\
+		1 \\
+		1
+	\end{bmatrix}
+\end{equation}
+\subsection{Weight initialization}
+Then we randomly initialize a $3 \times 1$ weight matrix:
+\begin{equation}
+	w =
+	\begin{bmatrix}
+		w_0 \\
+		w_1 \\
+		w_2 \\
+	\end{bmatrix}
+\end{equation}
+
+\section{Forward propagation}
+\subsection{Linear transformation}
+Forward propagation through the network consists of a linear transformation of the type $\hat{y}: \mathbb{R}^3 \to \mathbb{R}^4$
+\begin{equation}
+	\hat{y} = Xw =
+	\begin{bmatrix}
+		0 & 0 & 1 \\
+		0 & 1 & 1 \\
+		1 & 0 & 1 \\
+		1 & 1 & 1
+	\end{bmatrix}
+	\begin{bmatrix}
+		w_0 \\
+		w_1 \\
+		w_2 \\
+	\end{bmatrix}
+	=
+	\begin{bmatrix}
+		w_2 \\
+		w_1 + w_2 \\
+		w_0 + w_2 \\
+		w_0 + w_1 + w_2
+	\end{bmatrix}
+\end{equation}
+\subsection{Activation function}
+To confine the output between $0$ and $1$ we then apply the sigmoid function $y = sigmoid(\hat{y})$
+\begin{equation}
+	y = \frac{1}{1+e^{-\hat{y}}}
+\end{equation}
+
+\newpage
+
+\section{Loss and back propagation}
+\subsection{Delta}
+We calculate a delta using the derivative of the sigmoid function and the loss given by $Y-y$
+\begin{equation}
+	\Delta{y} = (Y-y)\frac{dy}{d\hat{y}} = (Y-y)(y-y^2)
+\end{equation}
+
+\subsection{Weight update}
+We now update our weights $w$:
+\begin{equation}
+	w = w + X^T\Delta{y}
+\end{equation}
+The same equation expanded:
+\begin{equation}
+	\begin{bmatrix}
+		w_0 \\
+		w_1 \\
+		w_2 \\
+	\end{bmatrix}
+	=
+	\begin{bmatrix}
+		w_0 \\
+		w_1 \\
+		w_2 \\
+	\end{bmatrix}
+	+
+	\begin{bmatrix}
+		0 & 0 & 1 & 1 \\
+		0 & 1 & 0 & 1 \\
+		1 & 1 & 1 & 1
+	\end{bmatrix}
+	\begin{bmatrix}
+		\Delta{y_0} \\
+		\Delta{y_1} \\
+		\Delta{y_2} \\
+		\Delta{y_3}
+	\end{bmatrix}
+\end{equation}
+Which ultimately means:
+\begin{equation}
+	w =
+	\begin{bmatrix}
+		w_0 + \Delta{y_2} + \Delta{y_3} \\
+		w_1 + \Delta{y_1} + \Delta{y_3} \\
+		w_2 + \Delta{y_0} + \Delta{y_1} + \Delta{y_2} + \Delta{y_3} \\
+	\end{bmatrix}
+\end{equation}
+
+\end{document}
