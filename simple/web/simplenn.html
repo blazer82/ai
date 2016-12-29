@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Simple NN</title>
+		<script src="jquery.min.js" charset="utf-8"></script>
+		<script src="numjs.min.js" charset="utf-8"></script>
+		<script src="simplenn.js" charset="utf-8"></script>
+		<style media="screen">
+			table.frame td {
+				padding: 20px;
+			}
+			table.layer td {
+				border: 1px solid grey;
+				text-align: center;
+				padding: 10px;
+			}
+		</style>
+	</head>
+	<body>
+
+	<button onclick="init()">Init</button>
+	<button onclick="step(10)">Step</button>
+	<button onclick="predict()">Predict</button>
+
+	<table class="frame">
+		<tr>
+			<th>X</th>
+			<th>w0</th>
+			<th>y</th>
+			<th>Y</th>
+		</tr>
+		<tr>
+			<td>
+				<table id="X" class="layer">
+					<tr>
+						<td></td>
+						<td></td>
+						<td></td>
+					</tr>
+					<tr>
+						<td></td>
+						<td></td>
+						<td></td>
+					</tr>
+					<tr>
+						<td></td>
+						<td></td>
+						<td></td>
+					</tr>
+					<tr>
+						<td></td>
+						<td></td>
+						<td></td>
+					</tr>
+				</table>
+			</td>
+			<td>
+				<table id="w0" class="layer">
+					<tr>
+						<td></td>
+					</tr>
+					<tr>
+						<td></td>
+					</tr>
+					<tr>
+						<td></td>
+					</tr>
+				</table>
+			</td>
+			<td>
+				<table id="y" class="layer">
+					<tr>
+						<td></td>
+					</tr>
+					<tr>
+						<td></td>
+					</tr>
+					<tr>
+						<td></td>
+					</tr>
+					<tr>
+						<td></td>
+					</tr>
+				</table>
+			</td>
+			<td>
+				<table id="Y" class="layer">
+					<tr>
+						<td></td>
+					</tr>
+					<tr>
+						<td></td>
+					</tr>
+					<tr>
+						<td></td>
+					</tr>
+					<tr>
+						<td></td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+	</body>
+</html>
