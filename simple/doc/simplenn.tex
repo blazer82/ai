@@ -43,9 +43,9 @@ Then we randomly initialize a $3 \times 1$ weight matrix:
 \begin{equation}
 	w =
 	\begin{bmatrix}
-		w_0 \\
 		w_1 \\
 		w_2 \\
+		w_3 \\
 	\end{bmatrix}
 \end{equation}
 
@@ -61,16 +61,16 @@ Forward propagation through the network consists of a linear transformation of t
 		1 & 1 & 1
 	\end{bmatrix}
 	\begin{bmatrix}
-		w_0 \\
 		w_1 \\
 		w_2 \\
+		w_3 \\
 	\end{bmatrix}
 	=
 	\begin{bmatrix}
-		w_2 \\
-		w_1 + w_2 \\
-		w_0 + w_2 \\
-		w_0 + w_1 + w_2
+		w_3 \\
+		w_2 + w_3 \\
+		w_1 + w_3 \\
+		w_1 + w_2 + w_3
 	\end{bmatrix}
 \end{equation}
 \subsection{Activation function}
@@ -96,15 +96,15 @@ We now update our weights $w$:
 The same equation expanded:
 \begin{equation}
 	\begin{bmatrix}
-		w_0 \\
 		w_1 \\
 		w_2 \\
+		w_3 \\
 	\end{bmatrix}
 	=
 	\begin{bmatrix}
-		w_0 \\
 		w_1 \\
 		w_2 \\
+		w_3 \\
 	\end{bmatrix}
 	+
 	\begin{bmatrix}
@@ -113,20 +113,131 @@ The same equation expanded:
 		1 & 1 & 1 & 1
 	\end{bmatrix}
 	\begin{bmatrix}
-		\Delta{y_0} \\
 		\Delta{y_1} \\
 		\Delta{y_2} \\
-		\Delta{y_3}
+		\Delta{y_3} \\
+		\Delta{y_4}
 	\end{bmatrix}
 \end{equation}
 Which ultimately means:
 \begin{equation}
 	w =
 	\begin{bmatrix}
-		w_0 + \Delta{y_2} + \Delta{y_3} \\
-		w_1 + \Delta{y_1} + \Delta{y_3} \\
-		w_2 + \Delta{y_0} + \Delta{y_1} + \Delta{y_2} + \Delta{y_3} \\
+		w_1 + \Delta{y_3} + \Delta{y_4} \\
+		w_2 + \Delta{y_2} + \Delta{y_4} \\
+		w_3 + \Delta{y_1} + \Delta{y_2} + \Delta{y_3} + \Delta{y_4} \\
 	\end{bmatrix}
 \end{equation}
 
+\newpage
+
+\section{Example calculation}
+\subsection{Initialize}
+Set $X \in \mathbb{R}^{n \times 3}$
+\begin{equation}
+	X =
+	\begin{bmatrix}
+		0 & 0 & 1 \\
+		\vdots & \vdots & \vdots \\
+	\end{bmatrix}
+\end{equation}	
+Set $Y \in \mathbb{R}^{n \times 1}$
+\begin{equation}
+	Y =
+	\begin{bmatrix}
+		0 \\
+		\vdots
+	\end{bmatrix}
+\end{equation}
+Set $w \in \mathbb{R}^{3 \times 1}$
+\begin{equation}
+	w =
+	\begin{bmatrix}
+		\vdots \\
+		0.4
+	\end{bmatrix}
+\end{equation}
+
+\subsection{Forward propagation}
+Caluclate $y$
+\begin{equation}
+	y =
+	\begin{bmatrix}
+		\frac{1}{1+e^{-0.4}} \\
+		\vdots
+	\end{bmatrix}
+	\approx
+	\begin{bmatrix}
+		0.6 \\
+		\vdots
+	\end{bmatrix}
+\end{equation}
+
+\subsection{Loss and back propagation}
+Calculate $\Delta{y}$
+\begin{equation}
+	\Delta{y} = (
+	\begin{bmatrix}
+		0 \\
+		\vdots
+	\end{bmatrix}
+	-
+	\begin{bmatrix}
+		0.6 \\
+		\vdots
+	\end{bmatrix}
+	)(
+	\begin{bmatrix}
+		0.6 \\
+		\vdots
+	\end{bmatrix}
+	-
+	\begin{bmatrix}
+		0.6^2 \\
+		\vdots
+	\end{bmatrix}
+	) =
+	\begin{bmatrix}
+		-0.144 \\
+		\vdots
+	\end{bmatrix}
+\end{equation}
+Update weight $w$
+\begin{equation}
+	w =
+	\begin{bmatrix}
+		\vdots \\
+		0.4
+	\end{bmatrix}
+	+
+	\begin{bmatrix}
+		0 & \ldots \\
+		0 & \ldots \\
+		1 & \ldots
+	\end{bmatrix}
+	\begin{bmatrix}
+		-0.144 \\
+		\vdots
+	\end{bmatrix}
+	\leq
+	\begin{bmatrix}
+		\vdots \\
+		0.256
+	\end{bmatrix}
+\end{equation}
+
+\subsection{Another prediction}
+Another forward pass gets is closer to the desired output:
+\begin{equation}
+	y =
+	\begin{bmatrix}
+		\frac{1}{1+e^{-0.256}} \\
+		\vdots
+	\end{bmatrix}
+	\approx
+	\begin{bmatrix}
+		0.56 \\
+		\vdots
+	\end{bmatrix}
+\end{equation}
 \end{document}
