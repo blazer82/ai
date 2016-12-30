@@ -29,11 +29,15 @@ function init() {
 	Y = nj.array([[0,0,1,1]]).transpose()
 
 	w0 = nj.random([3,1]).subtract(1).multiply(2)
+	render()
 	predict()
 	render()
 }
 
 function step(steps) {
+	propagateFromHTML(X, 'X')
+	propagateFromHTML(Y, 'Y')
+
 	var steps = steps || 1
 
 	for (var i = 0; i < steps; i++) {
@@ -52,18 +56,29 @@ function step(steps) {
 }
 
 function predict() {
+	propagateFromHTML(X, 'X')
+	propagateFromHTML(Y, 'Y')
+
 	l0 = X
 	l0_w0 = l0.dot(w0)
 	l1 = y = sigmoid(l0_w0)
 	render()
 }
 
+function propagateFromHTML(M, tableName) {
+	$('#'+tableName+' td input').each(function(i, input) {
+		row = Math.floor(i / M.shape[1])
+		col = Math.floor(i % M.shape[1])
+		M.set(row, col, $(input).val())
+	})
+}
+
 function render() {
 	function renderMatrix(M, tableName) {
-		$('#'+tableName+' td').each(function(i, td) {
+		$('#'+tableName+' td input').each(function(i, input) {
 			row = Math.floor(i / M.shape[1])
 			col = Math.floor(i % M.shape[1])
-			$(td).html(M.get(row, col))
+			$(input).val(M.get(row, col))
 		})
 	}
 	renderMatrix(X, 'X')
